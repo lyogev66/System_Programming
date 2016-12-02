@@ -2,11 +2,19 @@
 #include <string.h> //strlen
 #include <windows.h> //for thread and Sleep
 #include <math.h> //ceil
-#include <io.h>  //_get_osfhandle to cast file to handle
+//#include <io.h>  //_get_osfhandle to cast file to handle
 
 #include <tchar.h>
 #include <stdlib.h>
 #include "thread_functions.h"
+
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
+
+/**
+* <ISP> Example of using threads.
+*/
+#define NUM_OF_THREADS 5
+#define FILETIME_UNITS_PER_MILLISECOND 10000 
 
 typedef struct objectp{
 	char *inputfile_name;
@@ -19,8 +27,8 @@ typedef struct objectp{
 
 }objectp;
 
-//void print_file_name(objectp *arg_p)//char *inputfile_name,FILE *output_file)
-//{
+void print_file_name(objectp *arg_p)//char *inputfile_name,FILE *output_file)
+{
 //	DWORD dwBytesToWrite = (DWORD)strlen(arg_p->inputfile_name);
 //	DWORD dwBytesWritten = 0;
 //	BOOL bErrorFlag = FALSE;
@@ -33,23 +41,29 @@ typedef struct objectp{
 //                    &dwBytesWritten,			// number of bytes that were written
 //                    NULL);						// no overlapped structure
 //
-//	return;
-//}
+	return;
+}
 
 void test_file_extension(objectp *arg_p)//char *inputfile_name,FILE *output_file)
 {
-	int malloc_size=strlen("The file extension of the test file is \n")+5;
-	char *file_extension=arg_p->inputfile_name;
+	int malloc_size=strlen("The file extension of the test file is \n")+10;
+	char *file_extension,*file_name_copy;
+	int input_name_len=strlen(arg_p->inputfile_name);
 	Sleep(10);
-	file_extension=strtok(file_extension,".");
+
+	file_name_copy=(char*)malloc(sizeof(char)*(input_name_len+1));	
+
+	strcpy(file_name_copy,arg_p->inputfile_name);
+	file_extension=strtok(file_name_copy,".");
 	if(file_extension==NULL)
 		//wrong input//
 		return;
 	file_extension=strtok(NULL,".");
 
 	
-	arg_p->file_extension=(char*)malloc(sizeof(char)*malloc_size);										//leak_here
+	arg_p->file_extension=(char*)malloc(sizeof(char)*malloc_size);										
 	sprintf(arg_p->file_extension,"The file extension of the test file is \".%s\"\n",file_extension);
+	free(file_name_copy);
 	return;
 }
 
@@ -58,16 +72,15 @@ void test_file_size(objectp *arg_p)//FILE *input_file,FILE *output_file)
 	DWORD file_size;
 	char* Units[] = { "B", "KB", "MB", "GB", "TB"};
 	int unit_index=0;
-	int malloc_size=strlen("The test file size is KB\n")+5;
+	int malloc_size=strlen("The test file size is KB\n")+10;
 	//FILE *input_file=p->input_file;
 	//FILE *output_file=p->output_file;
 	//double file_size=0;
 
-
 	Sleep(10);
 	GetFileSize(arg_p->input_hfile,&file_size);
-	arg_p->file_size=(char*)malloc(sizeof(char)*malloc_size);
 
+	arg_p->file_size=(char*)malloc(sizeof(char)*malloc_size);
 
 	while(file_size>1024)
 	{
@@ -114,8 +127,10 @@ void test_file_modified_time(objectp *arg_p)
 
 void test_file_contant(objectp *arg_p)
 {
+	BOOL success;
 	DWORD nNumberOfBytesToRead=5;
-	DWORD lpNumberOfBytesRead=0;
+	DWORD get_error;
+	//DWORD lpNumberOfBytesRead=0;
 	int malloc_size=strlen("The files first 5 bytes are:aaaaa\n")+1;
 	int i;
 	char byte;
@@ -123,7 +138,9 @@ void test_file_contant(objectp *arg_p)
 	Sleep(10);
 
 	buffer= (char*)malloc(sizeof(char)*6);
-	ReadFile(arg_p->input_hfile,buffer,nNumberOfBytesToRead,&lpNumberOfBytesRead,NULL);
+	success=ReadFile(arg_p->input_hfile,buffer,nNumberOfBytesToRead,NULL,NULL);
+	if (!success)
+		get_error=GetLastError();
 	//ReadFile(arg_p->input_hfile,
 
 	arg_p->file_contant=(char*)malloc(sizeof(char)*malloc_size);
@@ -134,21 +151,7 @@ void test_file_contant(objectp *arg_p)
 
 
 
-//void output_file_name();
-
-
-#define NUM_OF_THREADS 5
-#define FILETIME_UNITS_PER_MILLISECOND 10000 
-
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
-
-/**
-* <ISP> Example of using threads.
-*/
-
-HANDLE create_thread_simple(LPTHREAD_START_ROUTINE StartAddress,
-	LPVOID ParameterPtr,
-	LPDWORD ThreadIdPtr)
+HANDLE create_thread_simple(LPTHREAD_START_ROUTINE StartAddress,LPVOID ParameterPtr,LPDWORD ThreadIdPtr)
 {
 	return CreateThread(
 		NULL,            /*  default security attributes */
@@ -159,28 +162,16 @@ HANDLE create_thread_simple(LPTHREAD_START_ROUTINE StartAddress,
 		ThreadIdPtr);    /*  returns the thread identifier */
 }
 
-
-
-
 void MainThreadExample(char *inputfile_name)
 {
+
+	int i;
+	HANDLE in_hfile;
 	HANDLE ThreadHandles[NUM_OF_THREADS];   /* An array of thread handles */
 	DWORD ThreadIDs[NUM_OF_THREADS];        /* An array of threadIDs */
 	DWORD exitcode;
-	//GuestSeating_t guest0, guest1, guest2; /* Items to be compared with the GuestDB */
-	int i;
-	char out_name[]="C:\Users\yogev\Documents\Visual Studio 2010\Projects\system_programming\ex2\TestFile\out.txt";
-	DWORD dwBytesToWrite = (DWORD)strlen(out_name);
-	DWORD dwBytesWritten = 0;
-	BOOL bErrorFlag = FALSE;
-	HANDLE out_hfile;
-	HANDLE in_hfile;
-
-
-
-
 	objectp arg_p;
-	arg_p.inputfile_name=inputfile_name;
+
 
 
 	//opening a file handle for output
@@ -199,41 +190,25 @@ void MainThreadExample(char *inputfile_name)
         return;
     }
 
-
-
-
-	//opening a file handle for output
-	    out_hfile = CreateFile(out_name,                // name of the write
-                       GENERIC_WRITE,          // open for writing
-                       0,                      // do not share
-                       NULL,                   // default security
-                       CREATE_ALWAYS,             // create new file only
-                       FILE_ATTRIBUTE_NORMAL,  // normal file
-                       NULL);                  // no attr. template
-
-    if (out_hfile == INVALID_HANDLE_VALUE) 
-    { 
-        //DisplayError(TEXT("CreateFile"));
-        _tprintf(TEXT("Terminal failure: Unable to open file \"%s\" for write.\n"), out_name);
-        return;
-    }
-
-
+	//inserting the values into the struct
+	arg_p.inputfile_name=inputfile_name;
 	arg_p.input_hfile=in_hfile;
-
-
-
+	arg_p.file_extension=NULL;
+	arg_p.file_size=NULL;
+	arg_p.file_create_time=NULL;
+	arg_p.file_modified_time=NULL;
+	arg_p.file_contant=NULL;
 
 
 	ThreadHandles[0] = create_thread_simple(
 		(LPTHREAD_START_ROUTINE)test_file_extension,  /*  thread function */
 		&arg_p,								/*  argument to thread function */
 		&ThreadIDs[0]);                    /*  returns the thread identifier */
-
 	ThreadHandles[1] = create_thread_simple(
 		(LPTHREAD_START_ROUTINE)test_file_size,
 		&arg_p,
 		&ThreadIDs[1]);
+
 	
 	ThreadHandles[2] = create_thread_simple(
 		(LPTHREAD_START_ROUTINE)test_file_create_time,
@@ -245,10 +220,10 @@ void MainThreadExample(char *inputfile_name)
 		&arg_p,
 		&ThreadIDs[3]);
 
-	ThreadHandles[4] = create_thread_simple(
-		(LPTHREAD_START_ROUTINE)test_file_contant,
-		&arg_p,
-		&ThreadIDs[4]);
+	//ThreadHandles[4] = create_thread_simple(
+	//	(LPTHREAD_START_ROUTINE)test_file_contant,
+	//	&arg_p,
+	//	&ThreadIDs[4]);
 		
 	/* Wait for all threads to end: */
 	WaitForMultipleObjects(
@@ -261,25 +236,30 @@ void MainThreadExample(char *inputfile_name)
 
 	for (i = 0; i < NUM_OF_THREADS; i++)
 	{
+		if (i==4)
+		{
+			continue;
+		}
 		GetExitCodeThread(ThreadHandles[i], &exitcode);
 		printf("Thread number %d returned exit code %d\n", i, exitcode);
 		CloseHandle(ThreadHandles[i]);
 	}
+
 	printf("%s\n",arg_p.inputfile_name);
 	printf(arg_p.file_extension);
 	printf(arg_p.file_size);
 	printf(arg_p.file_create_time);
 	printf(arg_p.file_modified_time);
-	printf(arg_p.file_contant);
+	//printf(arg_p.file_contant);
 
 
 
 
-	//handle the free over here !!!!!!!!!!!!!!1
-	//free(arg_p.file_extension); leak_here
-	//free(arg_p.file_size); leak_here
-	//free(arg_p.file_create_time); leak_here
-	//free(arg_p.file_modified_time); leak_here
-	//free(arg_p.file_contant); leak_here
+	//handle the free over here !!!!!!!!!!!!!!1 leak_here
+	free(arg_p.file_extension); 
+	free(arg_p.file_size); 
+	free(arg_p.file_create_time); 
+	free(arg_p.file_modified_time); 
+	//free(arg_p.file_contant); problem here !!!
 
 }
