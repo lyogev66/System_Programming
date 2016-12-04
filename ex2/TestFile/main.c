@@ -1,13 +1,37 @@
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
+/* 
+Author= Ziv Belahsan 201567278 Yogev laks=200344729
+Project=Exercise 2
+Using -			thread_functions.h	 
+	
+Description -	runs the TestFile project
+*/
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 #include "thread_functions.h"
-HANDLE g_file_handle;
 
+HANDLE g_file_handle;	// a global for the file handle				????????????
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
+function name :		round_to_2_digit
+Input arguments:	double file_size - a file size to be rounded down to 2 digits
+
+return:				double			 - a rounded file size		-
+
+Description-		Rounds the file size down to 2 digits after the decimal point
+oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 double round_to_2_digit(double file_size)
 {
 	file_size=(file_size*100)+0.5;
 	file_size=floor(file_size);
 	return file_size/100;
 }
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
+function name :		test_get_times
+Input arguments:	FILE_TIMES *ft - a file time pointer to be filled
 
+return:				None		
+
+Description-		a Thread function to be called and handle the file time test
+oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 void test_get_times(FILE_TIMES *ft)
 {
 	Sleep(10);
@@ -27,7 +51,14 @@ FAIL:
 	printf("test_get_times failed with 0x%x\n",GetLastError());
 	ExitThread (GetLastError());
 }
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
+function name :		test_file_size
+Input arguments:	SIZE_INFORMATION *si - a size information pointer to be filled
 
+return:				None		
+
+Description-		a Thread function to be called and handle the file size test
+oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 void test_file_size(SIZE_INFORMATION *si)
 {
 	DWORD dword_file_size = 0;
@@ -50,7 +81,14 @@ void test_file_size(SIZE_INFORMATION *si)
 
 	ExitThread(STATUS_OK);
 }
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
+function name :		test_file_contant
+Input arguments:	char* ff - a pointer to a the bytes read from the file
 
+return:				None		
+
+Description-		a Thread function to be called and reads the first five bytes from the file
+oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 void test_file_contant(char* ff)
 {
 	BOOL success = TRUE;
@@ -65,7 +103,15 @@ void test_file_contant(char* ff)
 	}
 	ExitThread(STATUS_OK);
 }
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
+function name :		test_file_extension
+Input arguments:	char* str - a pointer to a the file name to be changed to the file extansion
 
+return:				None		
+
+Description-		a Thread function to be called which gets the file name and moves the pointer
+					of the string to the point where the file extension is
+oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 void test_file_extension(char* str)
 {
 	char *str_tmp = NULL;
@@ -82,7 +128,15 @@ void test_file_extension(char* str)
 
 	ExitThread(STATUS_OK);
 }
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
+function name :		size_enum_to_string
+Input arguments:	FILE_UNITS fu - a file unit struct 
 
+return:				char * - the matching string that represent the file_units struct		
+
+Description-		a function that gets a file units struct and returns the matching string of file units
+					this function helps the file size thread
+oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 char* size_enum_to_string(FILE_UNITS fu)
 {
 	switch(fu)
@@ -102,7 +156,15 @@ char* size_enum_to_string(FILE_UNITS fu)
 	}
 
 }
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
+function name :		main
+Input arguments:	int argc	-command line argument count
+					char* argv[]-a pointer to command line argument strings
 
+return:				int - the exit code in which the program finished
+
+Description-		handles the project and returns the exit code
+oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 int main(int argc ,char * argv[])
 {
 	int index;

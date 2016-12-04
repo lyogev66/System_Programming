@@ -1,3 +1,12 @@
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
+/* 
+Author= Ziv Belahsan 201567278 Yogev laks=200344729
+Project=Exercise 2
+Using -				 
+	
+Description -	The thead function header file
+*/
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 #ifndef THREAD_FUNCTIONS_H
 #define THREAD_FUNCTIONS_H
 
@@ -78,7 +87,6 @@ typedef union STATUS_DATA
 	THREAD_STATUS ts;
 	char c_ts;
 }STATUS_DATA;
-
 
 
 #endif
