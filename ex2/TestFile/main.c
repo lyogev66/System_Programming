@@ -8,30 +8,6 @@ double round_to_2_digit(double file_size)
 	return file_size/100;
 }
 
-void CheckForThreadError(DWORD ec)
-{
-	switch (ec)
-	{
-	case EXIT_CODE_TIME_THREAD:
-		exit(EXIT_CODE_TIME_THREAD);
-		break;
-	case EXIT_CODE_SIZE_FILE_THREAD :
-		exit(EXIT_CODE_SIZE_FILE_THREAD);
-		break;
-	case EXIT_CODE_FIRST_5_CHARS_THREAD:
-		exit(EXIT_CODE_FIRST_5_CHARS_THREAD);
-		break;
-	case EXIT_CODE_EXTENTION_FILE_THREAD:
-		exit(EXIT_CODE_EXTENTION_FILE_THREAD);
-		break;
-	case EXIT_CODE_OK:
-		break;
-	default:
-		printf("AN ERROR %d ACCURED \n", ec);
-		exit(ec);
-	}
-}
-
 void test_get_times(FILE_TIMES *ft)
 {
 	Sleep(10);
@@ -46,9 +22,10 @@ void test_get_times(FILE_TIMES *ft)
 	if(SystemTimeToTzSpecificLocalTime(NULL,&(ft->UTC_CreationTime),&(ft->UTC_Israel_CreationTime)) == MY_ERROR)
 		goto FAIL;
 
-	ExitThread(EXIT_CODE_OK);
+	ExitThread(STATUS_OK);
 FAIL:
-	ExitThread (EXIT_CODE_TIME_THREAD);
+	printf("test_get_times failed with 0x%x\n",GetLastError());
+	ExitThread (GetLastError());
 }
 
 void test_file_size(SIZE_INFORMATION *si)
@@ -58,7 +35,10 @@ void test_file_size(SIZE_INFORMATION *si)
 	Sleep(10);
 	dword_file_size= GetFileSize(g_file_handle,NULL);
 	if(si->file_size == INVALID_FILE_SIZE)
-		ExitThread( EXIT_CODE_SIZE_FILE_THREAD);
+	{
+		printf("test_file_size failed with 0x%x\n",GetLastError());
+		ExitThread (GetLastError());
+	}
 	si->file_size=(double)dword_file_size;
 	while(si->file_size > SIZE_QUANT)
 	{
@@ -67,39 +47,40 @@ void test_file_size(SIZE_INFORMATION *si)
 	}
 	si->file_size=round_to_2_digit(si->file_size);
 	si->units =(FILE_UNITS) unit_index;
-	ExitThread( EXIT_CODE_OK);
+
+	ExitThread(STATUS_OK);
 }
 
 void test_file_contant(char* ff)
 {
 	BOOL success = TRUE;
-	DWORD get_error, NumRead;
+	DWORD NumRead;
 	Sleep(10);
 	success = ReadFile(g_file_handle,ff,NumberOfBytesToRead,&NumRead,NULL);
 	ff[NumberOfBytesToRead] = '\0';
 	if (!success)
 	{
-		printf("last error %d\n",GetLastError());
-		ExitThread( EXIT_CODE_FIRST_5_CHARS_THREAD);
+		printf("test_file_contant failed with 0x%x\n",GetLastError());
+		ExitThread (GetLastError());
 	}
-	ExitThread( EXIT_CODE_OK);
+	ExitThread(STATUS_OK);
 }
 
 void test_file_extension(char* str)
 {
 	char *str_tmp = NULL;
 	Sleep(10);
-	if(str == NULL)
-	{
-		printf("FILE NAME DOESNT EXISTS\n");
-		ExitThread( EXIT_CODE_EXTENTION_FILE_THREAD);
-	}
 
 	str_tmp = (char*)memchr(str, '.', strlen(str));
+	if(str_tmp == NULL)
+	{
+		printf("the token '.' does not exists \n");
+		ExitThread (NO_TOKEN_FOUND);
+	}
 	str_tmp = str_tmp + 1;
 	strcpy(str,str_tmp);
 
-	ExitThread( EXIT_CODE_OK);
+	ExitThread(STATUS_OK);
 }
 
 char* size_enum_to_string(FILE_UNITS fu)
@@ -128,29 +109,36 @@ int main(int argc ,char * argv[])
 	FILE_TIMES ft;
 	STATUS_DATA sd; 
 	SIZE_INFORMATION si;
+	int exit_codes_array [THREAD_NUMBER] ={0} ;
 	FILE *output_file = NULL;
 	HANDLE Thread_handle_array[THREAD_NUMBER];
 	size_t input_string_len,output_file_name_size;
 	char FirstFive[NumberOfBytesToRead + 1] = {0},* str_tmp = NULL ;
-	DWORD file_size, ThreadID[THREAD_NUMBER], exitCodesArr[THREAD_NUMBER] = {0};
+	DWORD file_size, ThreadID[THREAD_NUMBER], exitCodesArr[THREAD_NUMBER] = {0}, exit_code =0;
 	char *temp_name_of_tested_file = NULL,*address_for_temp_name_of_tested_file = NULL;
 	char *name_of_tested_file = NULL ,*address_for_name_of_tested_file = NULL ,*output_file_path = NULL;
 
 	if (argc < NUMBER_OF_ARGUMENTS)
-		return ERROR;
+		exit(ERROR);
 
 	input_string_len=strlen(argv[1]);
 	name_of_tested_file=(char*) malloc(sizeof(char)*input_string_len+1);
-	if (name_of_tested_file==NULL)
-		return ERROR;
-
-
+	if (name_of_tested_file == NULL)
+	{
+		printf("Memory Allocation failed \n");
+		exit(ERROR);
+	}
 	address_for_name_of_tested_file = name_of_tested_file;
 	name_of_tested_file = strcpy(name_of_tested_file,argv[1]);
 
-	temp_name_of_tested_file = (char*) malloc(sizeof(char)*input_string_len+ strlen("_log") +1);//1 for \0 and +4 for _log
+	temp_name_of_tested_file = (char*) malloc(sizeof(char)*input_string_len+ strlen("_log") +1);
 	if (temp_name_of_tested_file==NULL)
-		return ERROR;
+	{
+		printf("Memory Allocation failed \n");
+		free (name_of_tested_file);
+		exit(ERROR);
+	}
+
 	address_for_temp_name_of_tested_file = temp_name_of_tested_file;
 	temp_name_of_tested_file = strcpy(temp_name_of_tested_file,name_of_tested_file);
 	temp_name_of_tested_file = strtok(temp_name_of_tested_file,".");
@@ -158,40 +146,83 @@ int main(int argc ,char * argv[])
 
 	output_file_name_size = strlen(argv[2])+ strlen ("\\") + input_string_len+strlen("_log");
 	output_file_path=(char*) malloc(sizeof(char)*output_file_name_size + 1);
-	if (output_file_path==NULL)
-		return ERROR;
+	if (output_file_path == NULL)
+	{
+		printf("Memory Allocation failed \n");
+		free (name_of_tested_file);
+		free(address_for_temp_name_of_tested_file);
+		exit(ERROR);
+	}
 	output_file_path[0] = 0;
 	output_file_path = strcpy(output_file_path,argv[2]);
 	output_file_path = strcat(output_file_path,"\\");
 	output_file_path = strcat(output_file_path,temp_name_of_tested_file);
 
 	output_file=fopen(output_file_path,"w");
-	if (output_file==NULL)
-		return ERROR;
-
+	if (output_file == NULL)
+	{
+		printf("File open failed \n");
+		free (name_of_tested_file);
+		free(address_for_temp_name_of_tested_file);
+		free(output_file_path);
+		exit(ERROR);
+	}
 
 	memset(&sd,0,sizeof(sd));
 	g_file_handle = CreateFile(argv[1],GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_READONLY ,NULL);
-	 
 	if(g_file_handle == INVALID_HANDLE_VALUE)
-		exit(MY_ERROR);
+	{
+		printf("File handler open failed \n");
+		free (name_of_tested_file);
+		free(address_for_temp_name_of_tested_file);
+		free(output_file_path);
+		fclose(output_file);
+		exit(ERROR);
+	}
 
-	Thread_handle_array[TIME_THREAD]			= CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)test_get_times,&ft,0,&ThreadID[TIME_THREAD]);
-	Thread_handle_array[SIZE_FILE_THREAD]		= CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)test_file_size,&si,0,&ThreadID[SIZE_FILE_THREAD]);
-	Thread_handle_array[FIRST_5_CHARS_THREAD]	= CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)test_file_contant,FirstFive,0,&ThreadID[FIRST_5_CHARS_THREAD]);
-	Thread_handle_array[EXTENTION_FILE_THREAD]	= CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)test_file_extension,name_of_tested_file,0,&ThreadID[EXTENTION_FILE_THREAD]);
+	Thread_handle_array[TIME_THREAD] = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)test_get_times,&ft,0,&ThreadID[TIME_THREAD]);
+	if(Thread_handle_array[TIME_THREAD] == NULL)
+	{
+		printf("Create test_get_times thread failed \n");
+		exit_code = GetLastError();
+		goto EXIT_1;
+	}
+	Thread_handle_array[SIZE_FILE_THREAD] = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)test_file_size,&si,0,&ThreadID[SIZE_FILE_THREAD]);
+	if(Thread_handle_array[SIZE_FILE_THREAD] == NULL)
+	{
+		printf("Create test_file_size thread failed \n");
+		exit_code = GetLastError();
+		goto EXIT_2;
+	}
+	Thread_handle_array[FIRST_5_CHARS_THREAD] = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)test_file_contant,FirstFive,0,&ThreadID[FIRST_5_CHARS_THREAD]);
+	if(Thread_handle_array[FIRST_5_CHARS_THREAD] == NULL)
+	{
+		printf("Create test_file_contant thread failed \n");
+		exit_code = GetLastError();
+		goto EXIT_3;
+	}
+	Thread_handle_array[EXTENTION_FILE_THREAD] = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)test_file_extension,name_of_tested_file,0,&ThreadID[EXTENTION_FILE_THREAD]);
+	if(Thread_handle_array[EXTENTION_FILE_THREAD]== NULL)
+	{
+		printf("Create test_file_extension thread failed \n");
+		exit_code = GetLastError();
+		goto EXIT_4;
+	}
+
 	WaitForMultipleObjects(THREAD_NUMBER,Thread_handle_array,TRUE,INFINITE);
-	
+
+
 	while(sd.c_ts != ALL_THREAD_FINNISHED)
 	{
-
 		for(index = 0; index <THREAD_NUMBER; index++)
 		{
 			if(GetExitCodeThread(Thread_handle_array[index],&exitCodesArr[index]) == MY_ERROR)
-				exit(MY_ERROR);
+			{
+				goto EXIT_5;
+				exit_code = GetLastError();
+			}
 			if(STILL_ACTIVE  != exitCodesArr[index])
 			{
-				CheckForThreadError(exitCodesArr[index]);
 				switch(index)
 				{
 				case TIME_THREAD:
@@ -212,38 +243,72 @@ int main(int argc ,char * argv[])
 	}
 
 	fprintf(output_file,"%s \n", argv[1]);
-	fprintf(output_file,"The file extension of the test file is \".%s\"\n",name_of_tested_file);
-	fprintf(output_file,"The test file size is %.2f%s\n",si.file_size,size_enum_to_string(si.units));
-	fprintf(output_file,"The file was created on %02d/%02d/%d %02d:%02d:%02d\n",
-								ft.UTC_Israel_CreationTime.wDay,
-								ft.UTC_Israel_CreationTime.wMonth,
-								ft.UTC_Israel_CreationTime.wYear,
-								ft.UTC_Israel_CreationTime.wHour,
-								ft.UTC_Israel_CreationTime.wMinute,
-								ft.UTC_Israel_CreationTime.wSecond );	
 
-	fprintf(output_file,"The file was last modified on %02d/%02d/%d %02d:%02d:%02d\n",
-								ft.UTC_Isreal_lastmodified.wDay,
-								ft.UTC_Isreal_lastmodified.wMonth,
-								ft.UTC_Isreal_lastmodified.wYear,
-								ft.UTC_Isreal_lastmodified.wHour,
-								ft.UTC_Isreal_lastmodified.wMinute,
-								ft.UTC_Isreal_lastmodified.wSecond);
+	if(exitCodesArr[EXTENTION_FILE_THREAD] == STATUS_OK)
+		fprintf(output_file,"The file extension of the test file is \".%s\"\n",name_of_tested_file);
+	else
+	{
+		fprintf(output_file,"Thread EXTENTION_FILE_THREAD failed with error code :0x%x\n",exitCodesArr[EXTENTION_FILE_THREAD]);
+		exit_code = exitCodesArr[EXTENTION_FILE_THREAD];
+	}
 
-	fprintf(output_file,"The file's first 5 bytes are:%s\n",FirstFive);
+	if(exitCodesArr[SIZE_FILE_THREAD] == STATUS_OK)
+		fprintf(output_file,"The test file size is %.2f%s\n",si.file_size,size_enum_to_string(si.units));
+	else
+	{
+		fprintf(output_file,"Thread SIZE_FILE_THREAD failed with error code :0x%x\n",exitCodesArr[SIZE_FILE_THREAD]);
+		exit_code = exitCodesArr[SIZE_FILE_THREAD];
+	}
+
+	if(exitCodesArr[TIME_THREAD] == STATUS_OK)
+	{
+		fprintf(output_file,"The file was created on %02d/%02d/%d, %02d:%02d:%02d\n",
+							ft.UTC_Israel_CreationTime.wDay,
+							ft.UTC_Israel_CreationTime.wMonth,
+							ft.UTC_Israel_CreationTime.wYear,
+							ft.UTC_Israel_CreationTime.wHour,
+							ft.UTC_Israel_CreationTime.wMinute,
+							ft.UTC_Israel_CreationTime.wSecond );	
+
+		fprintf(output_file,"The file was last modified on %02d/%02d/%d, %02d:%02d:%02d\n",
+							ft.UTC_Isreal_lastmodified.wDay,
+							ft.UTC_Isreal_lastmodified.wMonth,
+							ft.UTC_Isreal_lastmodified.wYear,
+							ft.UTC_Isreal_lastmodified.wHour,
+							ft.UTC_Isreal_lastmodified.wMinute,
+							ft.UTC_Isreal_lastmodified.wSecond);
+	}
+	else
+	{
+		fprintf(output_file,"Thread TIME_THREAD failed with error code :0x%x\n",exitCodesArr[TIME_THREAD]);
+		exit_code = exitCodesArr[TIME_THREAD];
+	}
+	
+	if(exitCodesArr[EXTENTION_FILE_THREAD] == STATUS_OK)
+		fprintf(output_file,"The file's first 5 bytes are:%s\n",FirstFive);
+	else
+	{
+		fprintf(output_file,"Thread EXTENTION_FILE_THREAD failed with error code :0x%x\n",exitCodesArr[EXTENTION_FILE_THREAD]);
+		exit_code = exitCodesArr[EXTENTION_FILE_THREAD];
+	}
 
 
-	CloseHandle(Thread_handle_array[TIME_THREAD]);
-	CloseHandle(Thread_handle_array[SIZE_FILE_THREAD]);
-	CloseHandle(Thread_handle_array[FIRST_5_CHARS_THREAD]);
+
+EXIT_5:
 	CloseHandle(Thread_handle_array[EXTENTION_FILE_THREAD]);
-
+EXIT_4:
+	CloseHandle(Thread_handle_array[FIRST_5_CHARS_THREAD]);
+EXIT_3:
+	CloseHandle(Thread_handle_array[SIZE_FILE_THREAD]);
+EXIT_2:
+	CloseHandle(Thread_handle_array[TIME_THREAD]);
+EXIT_1:
 	fclose(output_file);
 	free(output_file_path);
 	free(address_for_name_of_tested_file);
 	free(address_for_temp_name_of_tested_file);
 	CloseHandle(g_file_handle);
-	return EXIT_CODE_OK;
+	exit(exit_code);
 }
 
 

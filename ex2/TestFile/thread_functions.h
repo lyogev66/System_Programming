@@ -8,11 +8,13 @@
 #include <stdlib.h>
 
 #define MY_ERROR				0
+#define STATUS_OK				1
 #define THREAD_NUMBER			4
 #define	SIZE_QUANT				1024
 #define NumberOfBytesToRead		5
 #define ALL_THREAD_FINNISHED	15
 #define NUMBER_OF_ARGUMENTS		3
+#define NO_TOKEN_FOUND			0x15
 
 typedef struct
 {
@@ -26,11 +28,9 @@ typedef struct
 
 typedef struct
 {
-
 	char *file_extention;
 	char *file_name;
 	char *First_five_chars;
-
 }FILE_STRINGS;
 
 typedef enum FILE_UNITS
@@ -56,14 +56,13 @@ typedef enum
 	EXTENTION_FILE_THREAD
 }THREAD_ID;
 
-typedef enum
-{
-	EXIT_CODE_TIME_THREAD			=	0x10,
-	EXIT_CODE_SIZE_FILE_THREAD		=	0x20,
-	EXIT_CODE_FIRST_5_CHARS_THREAD	=	0x30,
-	EXIT_CODE_EXTENTION_FILE_THREAD	=	0x40,
-	EXIT_CODE_OK					=	0x00
-}EXIT_CODES;
+//typedef struct
+//{
+//	DWORD exit_code_time_thread;
+//	DWORD exit_code_size_file_thread;
+//	DWORD exit_code_first_5_chars_thread;
+//	DWORD exit_code_extention_file_thread;
+//}EXIT_CODES;
 
 
 #pragma pack(1)
@@ -79,6 +78,7 @@ typedef union STATUS_DATA
 	THREAD_STATUS ts;
 	char c_ts;
 }STATUS_DATA;
+
 
 
 #endif
