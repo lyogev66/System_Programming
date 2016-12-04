@@ -1,10 +1,26 @@
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
+/* 
+Author= Ziv Belahsan 201567278 Yogev laks=200344729
+Project=Exercise 2
+Using -			TestManager.h	 
+	
+Description -	runs the TestMangager project
+*/
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 #include "TestManager.h"
 
-
-Process_list *g_Live_process_head = NULL;
+//global arguments containing the lists of the runing and finished proccesses
+Process_list *g_Live_process_head = NULL;	
 Process_list *g_Dead_process_head = NULL;
 int Processcount = 0;
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
+function name :		pad_argument
+Input arguments:	char *str	- 
 
+return:				None
+
+Description-		
+oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 void pad_argument(char *str)
 {
 	int length;
@@ -30,7 +46,16 @@ void pad_argument(char *str)
 	strcpy(str,padded_str);
 	free(padded_str);
 }
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
+function name :		Create_Process_Argument
+Input arguments:	char *target_process_name
+					char *file_name
+					char *output_directory_name 
 
+return:				char*
+
+Description-		
+oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 char* Create_Process_Argument(char *target_process_name,char *file_name,char *output_directory_name)
 {
 	char* ret =NULL ,*argument_command=NULL;
@@ -56,7 +81,15 @@ FAIL:
 	free(argument_command);
 	exit(0);
 }
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
+function name :		create_output_folder_path
+Input arguments:	char *path
+					int flag
 
+return:				char*
+
+Description-		creates a string to the output folder path	
+oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 char* create_output_folder_path(char *path,int flag)
 {
 	char* tmp=NULL, *ret=NULL;
@@ -80,7 +113,14 @@ char* create_output_folder_path(char *path,int flag)
 	}
 	return tmp;
 }
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
+function name :		process_lists_management
+Input arguments:	
 
+return:				
+
+Description-		manage the process list	
+oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 void process_lists_management()
 {
 	Process_list *live_tmp = g_Live_process_head , *dead_tmp = g_Dead_process_head, *tmp=NULL;
@@ -104,7 +144,16 @@ void process_lists_management()
 		live_tmp = live_tmp->next;
 	}
 }
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
+function name :		InitiateProcess
+Input arguments:	LPTSTR CommandLine	- a string of the command line argument to send to the process
+					FILE *fp			- a file that will handle the output for the process 
+					char* file_name		- a file name to which the process belongs
 
+return:				BOOL
+
+Description-		initiate the process according to CommandLine
+oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 BOOL InitiateProcess(LPTSTR CommandLine,FILE *fp,char* file_name)
 {
 	PROCESS_INFORMATION procinfo ;
@@ -136,7 +185,14 @@ BOOL InitiateProcess(LPTSTR CommandLine,FILE *fp,char* file_name)
 	}
 
 }
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
+function name :		free_processes
+Input arguments:	None
 
+return:				None
+
+Description-		frees the process list - which are globals
+oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 void free_processes()
 {
 	Process_list *tmp = g_Dead_process_head;
@@ -147,7 +203,15 @@ void free_processes()
 		tmp = tmp->next;
 	}
 }
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
+function name :		main
+Input arguments:	int argc	-command line argument count
+					char* argv[]-a pointer to command line argument strings
 
+return:				None
+
+Description-		handles the project
+oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 int main(int argc,char* argv[])
 {
 	char ch ,BOOL= TRUE;

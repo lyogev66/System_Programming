@@ -1,8 +1,25 @@
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
+/* 
+Author= Ziv Belahsan 201567278 Yogev laks=200344729
+Project=Exercise 2
+Using -			list_implemetation.h	 
+	
+Description -	handels the list implementation part of the project
+*/
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 #include "list_implemetation.h"
 
 extern Process_list *g_Live_process_head;
 extern Process_list *g_Dead_process_head;
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
+function name :		push_element
+Input arguments:	Process_list* head - the head of the list
+					Process_list* cell - a cell to be added to the list
 
+return:				Process_list * -a pointer to the process list
+
+Description-		pushes an elemnt to the process list so it will be sorted by process id
+oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 Process_list* push_element(Process_list* head,Process_list* cell)
 {
 	Process_list *current = head, *previous=NULL;
@@ -30,7 +47,16 @@ Process_list* push_element(Process_list* head,Process_list* cell)
 
 	return head;
 }
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
+function name :		SubtractFiletimes
+Input arguments:	FILETIME Late	- a struct which contains the value of the late time
+					FILETIME Early	- a struct which contains the value of the early time
 
+return:				FILETIME - a filetime object 
+
+Description-		substracts the value of the early filetime struct from the late
+					struct according to needed fields
+oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 FILETIME SubtractFiletimes(FILETIME Late, FILETIME Early)
 {
 	typedef unsigned __int64 Unsigned64BitType;
@@ -53,7 +79,15 @@ FILETIME SubtractFiletimes(FILETIME Late, FILETIME Early)
 
 	return DifferenceAsFILETIME;
 }
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
+function name :		print_live_process_list
+Input arguments:	Process_list* head	- a pointer to the list head
+					FILE* fp			- a file object to be printed to
 
+return:				None
+
+Description-		prints the process list of the running processes into a file
+oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 void print_live_process_list(Process_list* head,FILE* fp)
 {
 	Process_list* tmp = head;
@@ -81,7 +115,15 @@ void print_live_process_list(Process_list* head,FILE* fp)
 		tmp = tmp->next;
 	}
 }
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
+function name :		print_dead_process_list
+Input arguments:	Process_list* head	- a pointer to the list head
+					FILE* fp			- a file object to be printed to
 
+return:				None
+
+Description-		prints the process list of the finished processes into a file
+oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 void print_dead_process_list(Process_list* head,FILE* fp)
 {
 	Process_list* tmp = head;
@@ -108,7 +150,15 @@ void print_dead_process_list(Process_list* head,FILE* fp)
 		tmp = tmp->next;
 	}
 }
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
+function name :		creat_node
+Input arguments:	PROCESS_INFORMATION procinfo	- a process information struct to be added to the node
+					char* command_file_name			-the command line argument to be added to the node  
 
+return:				Process_list * - a pointer to a process list
+
+Description-		creates a new node of type process cell and adds it to the list
+oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 Process_list *creat_node(PROCESS_INFORMATION procinfo,char* command_file_name)
 {
 	Process_list * node;
@@ -138,7 +188,15 @@ FAIL:
 	free(node->command);
 	exit(0);
 }
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
+function name :		pop_node_from_list
+Input arguments:	Process_list* head	- a pointer to the head of the list 
+					DWORD process_id	- the process id to be poped from the list
 
+return:				Process_list * - a pointer to a process list
+
+Description-		removes a process from the process list according to the process_id
+oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 Process_list* pop_node_from_list(Process_list* head, DWORD process_id)
 {
 	Process_list *previus =NULL;
@@ -165,7 +223,15 @@ Process_list* pop_node_from_list(Process_list* head, DWORD process_id)
 	}
 	return current;
 }
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
+function name :		print_list
+Input arguments:	Process_list* head	- a pointer to the head of the list 
+					char* str			-	???????????????
 
+return:				None
+
+Description-		prints the list
+oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 void print_list(Process_list *head,char* str)
 {
 	Process_list *tmp = head;
@@ -178,7 +244,15 @@ void print_list(Process_list *head,char* str)
 	}
 	printf("END OF LIST\n");
 }
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
+function name :		print_list
+Input arguments:	Process_list* head	- a pointer to the head of the list 
+					char* str			-	???????????????
 
+return:				None
+
+Description-		frees the list
+oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 void free_list(Process_list *head,char* str)
 {
 	Process_list *tmp;

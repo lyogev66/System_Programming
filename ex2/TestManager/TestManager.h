@@ -1,10 +1,19 @@
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
+/* 
+Author= Ziv Belahsan 201567278 Yogev laks=200344729
+Project=Exercise 2
+Using -				 
+	
+Description -	The TestManagar header file
+*/
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 #ifndef TESTMANAGER_H
 #define TESTMANAGER_H
 
 #include <stdio.h>
 #include <windows.h>
 #include <tchar.h> 
-#include<string.h>
+#include <string.h>
 #include <stdlib.h>
 #include "list_implemetation.h"
 
@@ -26,8 +35,6 @@ typedef enum DATA_TYPE
 	CHAR_PTR,
 	PROCESS_LIST
 }DATA_TYPE;
-
-
 
 
 

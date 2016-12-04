@@ -1,3 +1,12 @@
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
+/* 
+Author= Ziv Belahsan 201567278 Yogev laks=200344729
+Project=Exercise 2
+Using -				 
+	
+Description -	The List implementation header file
+*/
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 #ifndef LIST_IMPLEMENTATION_H
 #define LIST_IMPLEMENTATION_H
 
@@ -20,7 +29,5 @@ void print_dead_process_list(Process_list* head,FILE* fp);
 void print_live_process_list(Process_list* head,FILE* fp);
 void print_list(Process_list *head,char* str);
 void free_list(Process_list *head,char* str);
-
-
 
 #endif
