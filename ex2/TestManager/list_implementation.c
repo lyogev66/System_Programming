@@ -2,8 +2,6 @@
 
 extern Process_list *g_Live_process_head;
 extern Process_list *g_Dead_process_head;
-//extern void* my_malloc(DATA_TYPE dt,int size,char* str);
-//extern void my_free(void* data,char *str);
 
 Process_list* push_element(Process_list* head,Process_list* cell)
 {
@@ -102,7 +100,7 @@ void print_dead_process_list(Process_list* head,FILE* fp)
 
 		//Process 1111 ran command ReadMe.txt and exited with exit code 0x0 after 2
 //seconds and 374 milliseconds
-		fprintf(fp,"Process %d ran command %s and exited with exit code 0x%d after %d second %d milliseconds\n",	tmp->procinfo.dwProcessId,
+		fprintf(fp,"Process %d ran command %s and exited with exit code 0x%x after %d second %d milliseconds\n",	tmp->procinfo.dwProcessId,
 			tmp->command,
 			tmp->exitcode,
 			UTC_total_time.wSecond,
@@ -115,8 +113,6 @@ Process_list *creat_node(PROCESS_INFORMATION procinfo,char* command_file_name)
 {
 	Process_list * node;
 	node = (Process_list*)malloc(sizeof(Process_list));
-	//node = (Process_list*)my_malloc(PROCESS_LIST,sizeof(Process_list),"node");
-	
 	if (node == NULL)
 	{
 		printf("Failed allocating new Process_list node \n");
@@ -127,7 +123,9 @@ Process_list *creat_node(PROCESS_INFORMATION procinfo,char* command_file_name)
 		node->exitcode = 0; 
 		node ->next = NULL;
 		node->command = (char*) calloc(strlen(command_file_name) + CHARACTER_SIZE, CHARACTER_SIZE);
-		//node->command = (char*) my_malloc(CHAR_PTR,strlen(command_file_name) + CHARACTER_SIZE,"node command");
+		if(node->command == NULL)
+			exit(1);
+
 		strcpy(node->command,command_file_name);
 
 		if(memcpy((void*)&(node->procinfo), (void*)&procinfo,sizeof(procinfo))==NULL)
@@ -140,7 +138,6 @@ FAIL:
 	free(node->command);
 	exit(0);
 }
-
 
 Process_list* pop_node_from_list(Process_list* head, DWORD process_id)
 {
@@ -168,7 +165,6 @@ Process_list* pop_node_from_list(Process_list* head, DWORD process_id)
 	}
 	return current;
 }
-
 
 void print_list(Process_list *head,char* str)
 {

@@ -1,5 +1,6 @@
 #include "TestManager.h"
 
+
 Process_list *g_Live_process_head = NULL;
 Process_list *g_Dead_process_head = NULL;
 int Processcount = 0;
@@ -73,6 +74,7 @@ char* create_output_folder_path(char *path,int flag)
 		tmp = (char*) calloc (strlen(path)+ strlen("runtime_logfile.txt") + 4,CHARACTER_SIZE);
 		strcat(tmp,"./");
 		strcat(tmp,path);
+
 		strcat(tmp,"/");
 		strcat(tmp,"runtime_logfile.txt");
 	}
@@ -82,8 +84,7 @@ char* create_output_folder_path(char *path,int flag)
 void process_lists_management()
 {
 	Process_list *live_tmp = g_Live_process_head , *dead_tmp = g_Dead_process_head, *tmp=NULL;
-	DWORD	exitcode,waitcode;
-
+	DWORD waitcode;
 	while(live_tmp != NULL)
 	{
 		waitcode = WaitForSingleObject(live_tmp->procinfo.hProcess, 0);
@@ -109,7 +110,6 @@ BOOL InitiateProcess(LPTSTR CommandLine,FILE *fp,char* file_name)
 	PROCESS_INFORMATION procinfo ;
 	STARTUPINFO    startinfo = { sizeof(STARTUPINFO), NULL, 0 }; 
 	Process_list *node = NULL;
-	DWORD               waitcode;
 
 	if(CreateProcess(NULL,		/*  No module name (use command line). */
 		CommandLine,			/*  Command line. */
@@ -131,7 +131,7 @@ BOOL InitiateProcess(LPTSTR CommandLine,FILE *fp,char* file_name)
 	}
 	else
 	{
-		fprintf(fp,"!!! Failed to create new process to run %s. Error code: %d !!!\n",CommandLine,GetLastError());
+		fprintf(fp,"!!! Failed to create new process to run %s. Error code: 0x%x !!!\n",file_name,GetLastError());
 		exit(0);
 	}
 
