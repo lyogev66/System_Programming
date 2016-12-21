@@ -18,17 +18,22 @@ typedef struct DatabaseCell
 	unsigned long		AccountNumber;
 	double				InitialBalance;
 	double				CurrentBalance;
-	int					NumOfDeposits;
-	int					NumOfWithdrawals;
+	unsigned int		NumOfDeposits;
+	unsigned int		NumOfWithdrawals;
+	double				TotalDeposits;
+	double				TotalWithdrawals;
 	HANDLE				AccountSem;
+
 	struct DatabaseCell		*next;
 }DatabaseCell;
 
 void PrintList(void);
+void FreeDatabase(void);
 void PushList(DatabaseCell* cell);
-int SearchList(unsigned long AccountNumber);
+int IsInList(unsigned long AccountNumber);
 void DeleteCell(unsigned long AccountNumber);
 DatabaseCell* GetCellFromList(unsigned long AccountNumber);
 DatabaseCell *CreateDatabaseCell(unsigned long AccountNumber, double InitialBalance);
+
 
 #endif

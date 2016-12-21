@@ -26,5 +26,7 @@
 #define CHECK_ALLOCATION(arg) { if(NULL==arg) \
 										{ printf("Object allocation failed with %d\n ",GetLastError()); exit(0);}}
 
+//#define CHECK_WAIT_RETURN_VALUE(WaitReturnValue) {if (WaitReturnValue==WAIT_FAILED) \
+//										{printf("Wait function failed with %d \n" ,GetLastError()); exit(0);}}
 
 #endif

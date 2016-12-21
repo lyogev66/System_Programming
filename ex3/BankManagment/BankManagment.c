@@ -1,11 +1,15 @@
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS 1
+#endif
 #include "BankManagment.h"
 
-
-DatabaseCell* g_DatabaseHead = NULL;
+volatile DatabaseCell* g_DatabaseHead = NULL;
 HANDLE *g_HandlesArray = NULL;
 int g_WaitCode = 0;
 DWORD g_HandelArraySize = 0;
-HANDLE g_Locker;
+HANDLE g_ThreadLocker;
+HANDLE g_FileLocker;
+FILE* g_RuntimeLogFile = NULL;
 
 int CheckAccountNumber(char *CommandLine)
 {
@@ -49,7 +53,6 @@ char* ReadLineFromFile(FILE* File)
 		str[index] = '\0';
 		ch = fgetc(File);
 	}
-
 	return str;
 }
 
@@ -58,44 +61,45 @@ void CreatAccount(ARGUMENTS_S* Args)
 	unsigned long AccountNumber = Args->AccountNumber;
 	double InitialBalance = Args->Balance;
 	printf("CreatAccount going to sleep \n");
-	Sleep(10000);
+	Sleep(SLEEP_TIME);
 	printf("CreatAccount waked up \n");
-	if(SearchList(AccountNumber))
-		printf("!!! Account number %lu already exists. Can't create account. Skipping command. !!!\n",AccountNumber);
+	if(IsInList(AccountNumber))
+		fprintf(g_RuntimeLogFile,"!!! Account number %lu already exists. Can't create account. Skipping command. !!!\n",AccountNumber);
 	else
 	{
 		PushList(CreateDatabaseCell(AccountNumber,InitialBalance));
+		fprintf(g_RuntimeLogFile,"Successfully created bank account number %lu with current balance of %lf.\n",Args->AccountNumber,Args->Balance);
 	}
 	free(Args);
-	printf("CreatAccount finnsihed \n"); 
+	printf("CreatAccount finnished \n"); 
 }
 
 void CloseAccount(ARGUMENTS_S* Args)
 {
 	unsigned long AccountNumber = Args->AccountNumber;
 	printf("CloseAccount going to sleep \n");
-	Sleep(10000);
+	Sleep(SLEEP_TIME);
 	printf("CloseAccount waked up \n");
-	if(!SearchList(AccountNumber))
-		printf("!!! Account number %lu doesn't exist. Can't close account. Skipping command. !!!\n",AccountNumber);
+	if(!IsInList(AccountNumber))
+		fprintf(g_RuntimeLogFile,"!!! Account number %lu doesn't exist. Can't close account. Skipping command. !!!\n",AccountNumber);
 	else
 	{
 		DeleteCell(AccountNumber);
-		printf("Successfully closed bank account number %lu.\n",AccountNumber);
+		fprintf(g_RuntimeLogFile,"Successfully closed bank account number %lu.\n",AccountNumber);
 	}
 	free(Args);
 	printf("CloseAccount finnished \n");
 }
 
-void PrintBalances()
+void PrintBalances(ARGUMENTS_S* Args)
 {
-
 	printf("PrintBalances going to sleep \n");
-	Sleep(10000);
+	Sleep(SLEEP_TIME);
 	printf("PrintBalances waked up \n");
-	printf("Current balances in bank accounts are:\n");
-	printf("Bank Account #,Current Balance\n");
+	fprintf(g_RuntimeLogFile,"Current balances in bank accounts are:\n");
+	fprintf(g_RuntimeLogFile,"Bank Account #,Current Balance\n");
 	PrintList();
+	free(Args);
 	printf("PrintBalances finnished\n");
 }
 
@@ -106,18 +110,24 @@ void Deposit(ARGUMENTS_S* Args)
 	DatabaseCell *tmp = NULL;
 
 	printf("Deposit going to sleep \n");
-	Sleep(10000);
+	Sleep(SLEEP_TIME);
 	printf("Deposit waked up \n");
 
-	if(!SearchList(AccountNumber))
-		printf("!!! Unable to deposited %.2lf to account number %lu. Account doesn't exist. Skipping command. !!!\n",Amount,AccountNumber);
+	if(!IsInList(AccountNumber))
+		fprintf(g_RuntimeLogFile,"!!! Unable to deposited %.2lf to account number %lu. Account doesn't exist. Skipping command. !!!\n",Amount,AccountNumber);
 	else
 	{
 		tmp = GetCellFromList(AccountNumber);
 		WaitForSingleObject(tmp->AccountSem,INFINITE);
+													/*~~~~CRITICAL REGION~~~*/
 		tmp->CurrentBalance += Amount;
+		tmp->TotalDeposits	+= Amount;
 		tmp->NumOfDeposits ++;
-		printf("Successfully deposited %.2lf to account number %lu.\n",Amount,AccountNumber);
+
+		WaitForSingleObject(g_FileLocker,INFINITE);
+		fprintf(g_RuntimeLogFile,"Successfully deposited %.2lf to account number %lu.\n",Amount,AccountNumber);
+													/*~~~~CRITICAL REGION~~~*/
+		ReleaseMutex(g_FileLocker);	
 		ReleaseMutex(tmp->AccountSem);
 	}
 	free(Args);
@@ -131,23 +141,28 @@ void Withdrawal(ARGUMENTS_S* Args)
 	DatabaseCell *tmp = NULL;
 
 	printf("Withdrawal going to sleep \n");
-	Sleep(10000);
+	Sleep(SLEEP_TIME);
 	printf("Withdrawal waked up \n");
 
-	if(!SearchList(AccountNumber))
-		printf("!!! Unable to withdrew %.2lf from account number %lu. Account doesn't exist. Skipping command. !!!\n",Amount,AccountNumber);
+	if(!IsInList(AccountNumber))
+		fprintf(g_RuntimeLogFile,"!!! Unable to withdrew %.2lf from account number %lu. Account doesn't exist. Skipping command. !!!\n",Amount,AccountNumber);
 	else
 	{
 		tmp = GetCellFromList(AccountNumber);
 		WaitForSingleObject(tmp->AccountSem,INFINITE);
-		tmp->CurrentBalance -= Amount;
+
+											/*~~~~CRITICAL REGION~~~*/
+		tmp->CurrentBalance		-= Amount;
+		tmp->TotalWithdrawals	+= Amount;
 		tmp->NumOfWithdrawals ++;
-		printf("Successfully withdrew %.2lf from account number %lu.\n",Amount,AccountNumber);
+		WaitForSingleObject(g_FileLocker,INFINITE);
+		fprintf(g_RuntimeLogFile,"Successfully withdrew %.2lf from account number %lu.\n",Amount,AccountNumber);
+		ReleaseMutex(g_FileLocker);
+											/*~~~~CRITICAL REGION~~~*/
 		ReleaseMutex(tmp->AccountSem);
 	}
 
 	free(Args);
-	ReleaseMutex(g_DatabaseHead->AccountSem);
 	printf("Withdrawal finnished\n");
 }
 
@@ -161,11 +176,12 @@ void RunCommand(char *CommandLine)
 	if(!CheckAccountNumber (CommandLine))
 	{
 		printf("Illegal Account Number\n");
+		free(Args);
 		return;
 	}
 	sscanf(CommandLine,"%s",command);
 
-	if (!strcmp(command,"CreatAccount"))
+	if (!strcmp(command,"CreateAccount"))
 	{
 		sscanf(CommandLine,"%s %lu %lf ",command,&Args->AccountNumber,&Args->Balance);
 		g_WaitCode = INFINITE;
@@ -176,7 +192,7 @@ void RunCommand(char *CommandLine)
 	}
 	else if (!strcmp(command,"CloseAccount"))
 	{
-		sscanf(CommandLine,"%s %lu ",command,&Args->AccountNumber);
+		sscanf(CommandLine,"%s %lu",command,&Args->AccountNumber);
 		g_WaitCode = INFINITE;
 		Args->WaitCode = INFINITE;
 		functionPtr = &CloseAccount;
@@ -189,12 +205,11 @@ void RunCommand(char *CommandLine)
 		Args->WaitCode	=	INFINITE;
 		functionPtr = &PrintBalances;
 		ThreadCreation(functionPtr,Args);
-		free(Args);
 		return;
 	}
 	else if (!strcmp(command,"Deposit"))
 	{
-		sscanf(CommandLine,"%s %lu %lf ",command,&Args->AccountNumber,&Args->Amount);
+		sscanf(CommandLine,"%s %lu %lf",command,&Args->AccountNumber,&Args->Amount);
 		g_WaitCode		= NO_WAIT;
 		Args->WaitCode	= NO_WAIT;
 		functionPtr = &Deposit;
@@ -203,7 +218,7 @@ void RunCommand(char *CommandLine)
 	}	
 	else if (!strcmp(command,"Withdrawal"))
 	{
-		sscanf(CommandLine,"%s %lu %lf ",command,&Args->AccountNumber,&Args->Amount);
+		sscanf(CommandLine,"%s %lu %lf",command,&Args->AccountNumber,&Args->Amount);
 		g_WaitCode		= NO_WAIT;
 		Args->WaitCode	= NO_WAIT;
 		functionPtr = &Withdrawal;
@@ -214,7 +229,6 @@ void RunCommand(char *CommandLine)
 		printf("Illegal Command %s\n",command);
 
 	return;
-
 }
 
 void ThreadCreation(void (*functionPtr)(ARGUMENTS_S*),ARGUMENTS_S* Args)
@@ -223,52 +237,91 @@ void ThreadCreation(void (*functionPtr)(ARGUMENTS_S*),ARGUMENTS_S* Args)
 	HANDLE tmpHandle;
 
 	if(g_HandlesArray!= NULL)
-		WaitForMultipleObjects(g_HandelArraySize,g_HandlesArray,TRUE,Args->WaitCode);
+		WaitForMultipleObjects(g_HandelArraySize,g_HandlesArray,TRUE,Args->WaitCode);//not including the yet to be initiated thread.
+
 	tmpHandle = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)functionPtr,Args,0,&ThreadID);
 	CHECK_THREAD_CREATION(tmpHandle);
 
 	AddHandleToArray(tmpHandle);
 }
 
-void ReadInputFileRoutine()
+void ReadInputFileRoutine(char* filename)
 {
 	errno_t err;
 	FILE *Instream = NULL;
 	char *CommandLine = NULL;
 
-	err = fopen_s(&Instream,"Test_file.txt","r+");
+	err = fopen_s(&Instream,filename,"r+");
 	CHECK_FILE_CREATION(err);
 	while(!feof(Instream))
 	{
 		CommandLine = ReadLineFromFile(Instream);
+		if(CommandLine == NULL)
+		{
+			printf("Empty line..continuing\n");
+			continue;
+		}
 		RunCommand(CommandLine);
-
+		free(CommandLine);
 		printf("waiting for %d items \n",g_HandelArraySize);
 		WaitForMultipleObjects(g_HandelArraySize,g_HandlesArray,TRUE,g_WaitCode);
 	}
-	printf("EOF reached \n");
+	
 	WaitForMultipleObjects(g_HandelArraySize,g_HandlesArray,TRUE,INFINITE);
+	fprintf(g_RuntimeLogFile,"Program successfully finished running. Exiting.");
+	printf("EOF reached \n");
 }
 
 void AddHandleToArray(HANDLE handle)
 {
 	DWORD ReleaseRes;
-	DWORD WaitRes = WaitForSingleObject( g_Locker, INFINITE );
+	DWORD WaitRes = WaitForSingleObject( g_ThreadLocker, INFINITE );
+	DWORD index;
+	DWORD WaitReturnValue;
 	
-	if(g_HandlesArray == NULL)
+	if(g_HandelArraySize < MAX_HANDLES_NUMBER)
 	{
 		g_HandelArraySize ++;
-		g_HandlesArray = (HANDLE*) calloc (g_HandelArraySize,sizeof(HANDLE));
+		if(g_HandlesArray == NULL)
+			g_HandlesArray = (HANDLE*) calloc (g_HandelArraySize,sizeof(HANDLE));
+		else
+			g_HandlesArray = (HANDLE*)realloc(g_HandlesArray,g_HandelArraySize*sizeof(HANDLE));
+		if(g_HandlesArray == NULL)
+		{
+			ReleaseRes = ReleaseMutex(g_ThreadLocker);
+			printf("Inside AddHandleToArray Allocation failed\n");
+			exit(GetLastError());
+		}
+		g_HandlesArray[g_HandelArraySize -1] = handle;
 	}
 	else
 	{
-		g_HandelArraySize ++;
+		WaitReturnValue = WaitForMultipleObjects(g_HandelArraySize,g_HandlesArray,TRUE,INFINITE);	//waiting till all the thread finish and clearing the array
+		if(WaitReturnValue == WAIT_FAILED)
+		{
+			ReleaseRes = ReleaseMutex(g_ThreadLocker);
+			printf("Inside AddHandleToArray WaitForMultipleObjects failed\n");
+			exit(GetLastError());
+		}
+		for(index = g_HandelArraySize; index > 0 ; index --)
+		{
+			//printf("removing index location=%d\n\n",index);
+			CloseHandle(g_HandlesArray[index-1]);
+			
+		}
+		g_HandelArraySize=1;
 		g_HandlesArray = (HANDLE*)realloc(g_HandlesArray,g_HandelArraySize*sizeof(HANDLE));
+		if(g_HandlesArray == NULL)
+		{
+			ReleaseRes = ReleaseMutex(g_ThreadLocker);
+			printf("Inside AddHandleToArray Allocation failed\n");
+			exit(GetLastError());
+		}
+		//printf("index location=%d\n\n",index);
+		g_HandlesArray[index] = handle;
 	}
-	CHECK_ALLOCATION(g_HandlesArray);
-	g_HandlesArray[g_HandelArraySize -1] = handle;
 
-	ReleaseRes = ReleaseMutex( g_Locker );
+	ReleaseRes = ReleaseMutex( g_ThreadLocker );
 }
 
 void CloseHandleArray()
@@ -280,10 +333,66 @@ void CloseHandleArray()
 	}
 }
 
-void main()
+void CreateBlanceReport(char* BlanceReportFileName)
 {
-	g_Locker = CreateMutex(NULL,FALSE, "LockerM");  
-	ReadInputFileRoutine();
+	errno_t err;
+	FILE *Outstream = NULL;
+	int TotalDeposits = 0, TotalWithdrawals = 0;
+	volatile DatabaseCell *tmp = g_DatabaseHead;
+	err = fopen_s(&Outstream,BlanceReportFileName,"w+");
+	CHECK_FILE_CREATION(err);
+	fprintf(Outstream,"Summary of balances in bank accounts:\n");
+	fprintf(Outstream,"Bank Account #,Current Balance,Initial Balance,Total Deposited,Total	Withdrawal,# of Deposits,# of Withdrawals\n");
+	while(tmp)
+	{
+		if (tmp ->next == NULL)
+			fprintf(Outstream,"%lu,%.2lf,%.2lf,%.2lf,%.2lf,%lu,%lu",tmp->AccountNumber,
+														tmp->CurrentBalance,
+														tmp->InitialBalance,
+														tmp->TotalDeposits,
+														tmp->TotalWithdrawals,
+														tmp->NumOfDeposits,
+														tmp->NumOfWithdrawals);
+		else
+			fprintf(Outstream,"%lu,%.2lf,%.2lf,%.2lf,%.2lf,%lu,%lu\n",tmp->AccountNumber,
+														tmp->CurrentBalance,
+														tmp->InitialBalance,
+														tmp->TotalDeposits,
+														tmp->TotalWithdrawals,
+														tmp->NumOfDeposits,
+														tmp->NumOfWithdrawals);
+		tmp = tmp->next;
+		
+	}
+	fclose(Outstream);
+}
+
+void main(int argc, char *argv[])
+{
+	FILE* Outstream = NULL;
+
+	if(argc < NUM_OF_ARGUMENTS)
+	{
+		printf("Incorrect number of arguments \n");
+		exit(0);
+	}
+
+	g_ThreadLocker = CreateMutex(NULL,FALSE,NULL); 
+	g_FileLocker = CreateMutex(NULL,FALSE,NULL); 
+
+	g_RuntimeLogFile = fopen(argv[3],"w+");
+	if(g_RuntimeLogFile == NULL)
+	{
+		printf("failed open RuntimeLogFile for writing\n");
+		CloseHandle(g_ThreadLocker);
+		CloseHandle(g_FileLocker);
+		exit(GetLastError());
+	}
+
+	ReadInputFileRoutine(argv[1]);
+
+	CreateBlanceReport(argv[2]);
 	CloseHandleArray();
+	FreeDatabase();
 }
 

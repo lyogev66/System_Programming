@@ -1,24 +1,25 @@
 #include "ListManagment.h"
 
 extern DatabaseCell* g_DatabaseHead;
+extern FILE* g_RuntimeLogFile;
 
-char* u_long2String(unsigned long* num)
-{
-	int len = 2;
-	unsigned long tmp = *num;
-	char* str = NULL;
-
-	while(tmp > 0)
-	{
-		tmp/=10;
-		len++;
-	}
-
-	str = (char*)calloc(len +1,sizeof(char));
-	CHECK_STRING_ALLOCATION(str);
-	sprintf(str,"%lu",*num);
-	return str;
-}
+//char* u_long2String(unsigned long* num)
+//{
+//	int len = 2;
+//	unsigned long tmp = *num;
+//	char* str = NULL;
+//
+//	while(tmp > 0)
+//	{
+//		tmp/=10;
+//		len++;
+//	}
+//
+//	str = (char*)calloc(len +1,sizeof(char));
+//	CHECK_STRING_ALLOCATION(str);
+//	sprintf(str,"%lu",*num);
+//	return str;
+//}
 
 void PushList(DatabaseCell* cell)
 {
@@ -60,10 +61,12 @@ DatabaseCell *CreateDatabaseCell(unsigned long		AccountNumber,
 	node->InitialBalance	= InitialBalance;
 	node->CurrentBalance	= InitialBalance;
 	node->NumOfDeposits		= 0;
-	node->NumOfDeposits		= 0;
+	node->NumOfWithdrawals	= 0;
+	node->TotalDeposits		= 0;
+	node->TotalWithdrawals	= 0;
 	node->AccountSem =     CreateMutex(NULL,              // default security attributes
 										FALSE,             // initially not owned
-										u_long2String(&node->AccountNumber));
+										NULL);	
 	CHECK_ALLOCATION(node->AccountSem);
 	node ->next = NULL;
 	return node;
@@ -80,6 +83,7 @@ void DeleteCell(unsigned long AccountNumber)
 		tmp = current;
 		g_DatabaseHead = current->next;
 		tmp->next = NULL;
+		free(tmp);
 		return;
 	}
 	while(current)
@@ -88,6 +92,7 @@ void DeleteCell(unsigned long AccountNumber)
 		{
 			previus->next = current->next;
 			current->next =NULL;
+			free(current);
 			return;
 		}
 		previus = current;
@@ -95,7 +100,7 @@ void DeleteCell(unsigned long AccountNumber)
 	}
 }
 
-int SearchList(unsigned long AccountNumber)
+int IsInList(unsigned long AccountNumber)
 {
 	DatabaseCell *tmp = NULL;
 	for(tmp = g_DatabaseHead; tmp != NULL ; tmp = tmp->next)
@@ -113,7 +118,7 @@ void PrintList(void)
 		return;
 	for(tmp = g_DatabaseHead; tmp != NULL ; tmp = tmp->next)
 	{
-		printf("%lu with %.2lf\n",tmp->AccountNumber,tmp->CurrentBalance);
+		fprintf(g_RuntimeLogFile,"%lu,%.2lf\n",tmp->AccountNumber,tmp->CurrentBalance);
 	}
 }
 

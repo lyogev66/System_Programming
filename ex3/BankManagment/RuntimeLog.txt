@@ -1,0 +1,10 @@
+Successfully created bank account number 12345 with current balance of 10.000000.
+Successfully created bank account number 11111 with current balance of 55.000000.
+!!! Account number 11111 already exists. Can't create account. Skipping command. !!!
+Successfully deposited 1000.00 to account number 12345.
+Successfully withdrew 50.00 from account number 12345.
+Current balances in bank accounts are:
+Bank Account #,Current Balance
+11111,55.00
+12345,960.00
+Program successfully finished running. Exiting.

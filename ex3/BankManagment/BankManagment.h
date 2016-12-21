@@ -8,6 +8,8 @@
 #define MAX_COMMAND_LENGTH			14
 #define SLEEP_TIME					10
 #define NO_WAIT						0
+#define MAX_HANDLES_NUMBER			63
+#define NUM_OF_ARGUMENTS			3
 
 typedef enum
 {

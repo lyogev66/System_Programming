@@ -1,0 +1,4 @@
+Summary of balances in bank accounts:
+Bank Account #,Current Balance,Initial Balance,Total Deposited,Total	Withdrawal,# of Deposits,# of Withdrawals
+11111,55.00,55.00,0.00,0.00,0,0
+12345,960.00,10.00,1000.00,50.00,1,1
