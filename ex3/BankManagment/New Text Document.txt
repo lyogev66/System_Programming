@@ -1,0 +1,604 @@
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
+/* 
+Author= Ziv Belahsan 201567278 Yogev laks=200344729
+Project=Exercise 2
+Using -				 
+	
+Description -	The List implementation header file
+*/
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
+
+#ifndef LIST_MANAGMENT_H
+#define LIST_MANAGMENT_H
+
+#include "Common.h"
+
+typedef struct DatabaseCell
+{
+	unsigned long		AccountNumber;
+	double				InitialBalance;
+	double				CurrentBalance;
+	int					NumOfDeposits;
+	int					NumOfWithdrawals;
+	HANDLE				AccountSem;
+	struct DatabaseCell		*next;
+}DatabaseCell;
+
+void PrintList(void);
+void PushList(DatabaseCell* cell);
+int SearchList(unsigned long AccountNumber);
+void DeleteCell(unsigned long AccountNumber);
+DatabaseCell* GetCellFromList(unsigned long AccountNumber);
+DatabaseCell *CreateDatabaseCell(unsigned long AccountNumber, double InitialBalance);
+
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include "ListManagment.h"
+
+extern DatabaseCell* g_DatabaseHead;
+
+char* u_long2String(unsigned long* num)
+{
+	int len = 2;
+	unsigned long tmp = *num;
+	char* str = NULL;
+
+	while(tmp > 0)
+	{
+		tmp/=10;
+		len++;
+	}
+
+	str = (char*)calloc(len +1,sizeof(char));
+	CHECK_STRING_ALLOCATION(str);
+	sprintf(str,"%lu",*num);
+	return str;
+}
+
+void PushList(DatabaseCell* cell)
+{
+	DatabaseCell *current = g_DatabaseHead, *previous=NULL;
+	cell ->next = NULL;
+	if(g_DatabaseHead == NULL)// handels empty list
+	{
+		g_DatabaseHead = cell;
+		return;
+	}
+	if(current->AccountNumber >= cell->AccountNumber)//handle situation that the first node at the list allready has lower process_id then the newely entered cell
+	{
+		cell->next = current;
+		g_DatabaseHead = cell;
+		return;
+	}
+	previous = current;
+	current = current->next;
+
+	while(current != NULL && current->AccountNumber <= cell->AccountNumber)
+	{
+		previous = current;
+		current = current->next;
+	}
+
+	cell ->next = current;
+	previous->next = cell;
+	return;
+}
+
+DatabaseCell *CreateDatabaseCell(unsigned long		AccountNumber,
+	double				InitialBalance)
+{
+	DatabaseCell * node = NULL;
+	node = (DatabaseCell*)malloc(sizeof(DatabaseCell));
+	CHECK_MEMORY_ALLOCATION(node);
+
+	node->AccountNumber		= AccountNumber;
+	node->InitialBalance	= InitialBalance;
+	node->CurrentBalance	= InitialBalance;
+	node->NumOfDeposits		= 0;
+	node->NumOfDeposits		= 0;
+	node->AccountSem =     CreateMutex(NULL,              // default security attributes
+										FALSE,             // initially not owned
+										u_long2String(&node->AccountNumber));
+	CHECK_ALLOCATION(node->AccountSem);
+	node ->next = NULL;
+	return node;
+}
+
+void DeleteCell(unsigned long AccountNumber)
+{
+	DatabaseCell *previus = NULL;
+	DatabaseCell *current = g_DatabaseHead;
+	DatabaseCell *tmp = NULL;
+
+	if(current->AccountNumber == AccountNumber)
+	{
+		tmp = current;
+		g_DatabaseHead = current->next;
+		tmp->next = NULL;
+		return;
+	}
+	while(current)
+	{
+		if(current->AccountNumber == AccountNumber)
+		{
+			previus->next = current->next;
+			current->next =NULL;
+			return;
+		}
+		previus = current;
+		current = current->next;
+	}
+}
+
+int SearchList(unsigned long AccountNumber)
+{
+	DatabaseCell *tmp = NULL;
+	for(tmp = g_DatabaseHead; tmp != NULL ; tmp = tmp->next)
+	{
+		if(tmp->AccountNumber == AccountNumber)
+			return 1;
+	}
+	return 0;
+}
+
+void PrintList(void)
+{
+	DatabaseCell *tmp = g_DatabaseHead;
+	if(g_DatabaseHead == NULL)
+		return;
+	for(tmp = g_DatabaseHead; tmp != NULL ; tmp = tmp->next)
+	{
+		printf("%lu with %.2lf\n",tmp->AccountNumber,tmp->CurrentBalance);
+	}
+}
+
+void FreeDatabase(void)
+{
+	DatabaseCell *tmp = NULL;
+
+	while (g_DatabaseHead)
+	{
+		tmp = g_DatabaseHead;
+		g_DatabaseHead = g_DatabaseHead->next;
+		CloseHandle(tmp->AccountSem);
+		free(tmp);
+	}
+}
+
+DatabaseCell* GetCellFromList(unsigned long AccountNumber)
+{
+	DatabaseCell *tmp = NULL;
+	for(tmp = g_DatabaseHead; tmp != NULL ; tmp = tmp->next)
+	{
+		if(tmp->AccountNumber == AccountNumber)
+			return tmp;
+	}
+	return NULL;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#ifndef COMMON_H
+#define COMMON_H
+
+#include <stdio.h>
+#include <Windows.h>
+
+
+#define ERROR_CODE		0
+#define THREAD_NUMBER	1
+
+#define CHECK_FILE_CREATION(arg) {if(0 != arg) \
+										{ printf("File creation failed with %d\n",GetLastError()); exit(0);}}
+
+#define CHECK_STRING_ALLOCATION(arg) { if(NULL==arg) \
+										{ printf("string allocation failed with %d\n ",GetLastError()); exit(0);}}
+
+#define PRINT_STRING(arg) printf("%s ",arg)
+
+
+#define CHECK_THREAD_CREATION(arg) { if(NULL==arg) \
+										{ printf("Thread creation failed with %d\n ",GetLastError()); exit(0);}}
+
+#define CHECK_MEMORY_ALLOCATION(arg) { if(NULL==arg) \
+										{ printf("Memmory allocation failed with %d\n ",GetLastError()); exit(0);}}
+
+#define CHECK_ALLOCATION(arg) { if(NULL==arg) \
+										{ printf("Object allocation failed with %d\n ",GetLastError()); exit(0);}}
+
+
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#ifndef BANK_MANAGMENT
+#define BANK_MANAGMENT
+
+
+#include "Common.h"
+#include "ListManagment.h"
+
+#define MAX_COMMAND_LENGTH			14
+#define SLEEP_TIME					10
+#define NO_WAIT						0
+
+typedef enum
+{
+	READ_INPUT,
+	SPARE1,
+	SPARE2,
+	SPARE3
+}THREAD_NAME;
+
+typedef struct arg
+{
+	double Amount;
+	double Balance;
+	unsigned long AccountNumber;
+	DWORD WaitCode;
+}ARGUMENTS_S;
+
+
+
+
+void PrintBalances(ARGUMENTS_S* Args);
+void Deposit(ARGUMENTS_S* Args);
+void Withdrawal(ARGUMENTS_S* Args);
+void CreatAccount(ARGUMENTS_S* Args);
+void CloseAccount(ARGUMENTS_S* Args);
+void AddHandleToArray(HANDLE handle);
+//void ThreadCreation(void (*functionPtr)(ARGUMENTS_S),ARGUMENTS_S* Args);
+void ThreadCreation(void (*functionPtr)(ARGUMENTS_S*),ARGUMENTS_S* Args);
+
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include "BankManagment.h"
+
+
+DatabaseCell* g_DatabaseHead = NULL;
+HANDLE *g_HandlesArray = NULL;
+int g_WaitCode = 0;
+DWORD g_HandelArraySize = 0;
+HANDLE g_Locker;
+
+int CheckAccountNumber(char *CommandLine)
+{
+	char *token = NULL, *ch = NULL,*CommandLineCopy = NULL ;
+	char Bool = TRUE;
+	Sleep(SLEEP_TIME);
+	if(!strcmp(CommandLine,"PrintBalances"))
+		return Bool;
+
+	CommandLineCopy = (char*)calloc(strlen(CommandLine)+1,sizeof(char));
+	CHECK_STRING_ALLOCATION(CommandLineCopy);
+	strcpy(CommandLineCopy,CommandLine);
+
+	token = strtok(CommandLineCopy, " ");
+    token = strtok(NULL, " ");
+
+	for(ch = token ; *ch!='\0'; ch++)
+	{
+		if((*ch < 48) || (*ch>57))
+		{
+			Bool = FALSE;
+			break;
+		}
+	}
+	free(CommandLineCopy);
+	return Bool;
+}
+
+char* ReadLineFromFile(FILE* File)
+{
+	char ch;
+	char *str = NULL;
+	int length = 1,index = 0;
+
+	ch = fgetc(File);
+	while((ch!='\n') && (ch!= EOF) && (ch!= '\r'))
+	{
+		str = (char*) realloc((char*)str,++length);
+		CHECK_STRING_ALLOCATION(str);
+		str[index++] = ch;
+		str[index] = '\0';
+		ch = fgetc(File);
+	}
+
+	return str;
+}
+
+void CreatAccount(ARGUMENTS_S* Args)
+{
+	unsigned long AccountNumber = Args->AccountNumber;
+	double InitialBalance = Args->Balance;
+	printf("CreatAccount going to sleep \n");
+	Sleep(10000);
+	printf("CreatAccount waked up \n");
+	if(SearchList(AccountNumber))
+		printf("!!! Account number %lu already exists. Can't create account. Skipping command. !!!\n",AccountNumber);
+	else
+	{
+		PushList(CreateDatabaseCell(AccountNumber,InitialBalance));
+	}
+	free(Args);
+	printf("CreatAccount finnsihed \n"); 
+}
+
+void CloseAccount(ARGUMENTS_S* Args)
+{
+	unsigned long AccountNumber = Args->AccountNumber;
+	printf("CloseAccount going to sleep \n");
+	Sleep(10000);
+	printf("CloseAccount waked up \n");
+	if(!SearchList(AccountNumber))
+		printf("!!! Account number %lu doesn't exist. Can't close account. Skipping command. !!!\n",AccountNumber);
+	else
+	{
+		DeleteCell(AccountNumber);
+		printf("Successfully closed bank account number %lu.\n",AccountNumber);
+	}
+	free(Args);
+	printf("CloseAccount finnished \n");
+}
+
+void PrintBalances()
+{
+
+	printf("PrintBalances going to sleep \n");
+	Sleep(10000);
+	printf("PrintBalances waked up \n");
+	printf("Current balances in bank accounts are:\n");
+	printf("Bank Account #,Current Balance\n");
+	PrintList();
+	printf("PrintBalances finnished\n");
+}
+
+void Deposit(ARGUMENTS_S* Args)
+{
+	unsigned long AccountNumber = Args->AccountNumber;
+	double Amount = Args->Amount;
+	DatabaseCell *tmp = NULL;
+
+	printf("Deposit going to sleep \n");
+	Sleep(10000);
+	printf("Deposit waked up \n");
+
+	if(!SearchList(AccountNumber))
+		printf("!!! Unable to deposited %.2lf to account number %lu. Account doesn't exist. Skipping command. !!!\n",Amount,AccountNumber);
+	else
+	{
+		tmp = GetCellFromList(AccountNumber);
+		WaitForSingleObject(tmp->AccountSem,INFINITE);
+		tmp->CurrentBalance += Amount;
+		tmp->NumOfDeposits ++;
+		printf("Successfully deposited %.2lf to account number %lu.\n",Amount,AccountNumber);
+		ReleaseMutex(tmp->AccountSem);
+	}
+	free(Args);
+	printf("Deposit finnished\n");
+}
+
+void Withdrawal(ARGUMENTS_S* Args)
+{
+	unsigned long AccountNumber = Args->AccountNumber;
+	double Amount = Args->Amount;
+	DatabaseCell *tmp = NULL;
+
+	printf("Withdrawal going to sleep \n");
+	Sleep(10000);
+	printf("Withdrawal waked up \n");
+
+	if(!SearchList(AccountNumber))
+		printf("!!! Unable to withdrew %.2lf from account number %lu. Account doesn't exist. Skipping command. !!!\n",Amount,AccountNumber);
+	else
+	{
+		tmp = GetCellFromList(AccountNumber);
+		WaitForSingleObject(tmp->AccountSem,INFINITE);
+		tmp->CurrentBalance -= Amount;
+		tmp->NumOfWithdrawals ++;
+		printf("Successfully withdrew %.2lf from account number %lu.\n",Amount,AccountNumber);
+		ReleaseMutex(tmp->AccountSem);
+	}
+
+	free(Args);
+	ReleaseMutex(g_DatabaseHead->AccountSem);
+	printf("Withdrawal finnished\n");
+}
+
+void RunCommand(char *CommandLine)
+{
+	char command[MAX_COMMAND_LENGTH]  = {0};
+	void (*functionPtr)(ARGUMENTS_S*);
+
+	ARGUMENTS_S* Args = (ARGUMENTS_S*) calloc(1,sizeof(ARGUMENTS_S));
+	CHECK_ALLOCATION(Args);
+	if(!CheckAccountNumber (CommandLine))
+	{
+		printf("Illegal Account Number\n");
+		return;
+	}
+	sscanf(CommandLine,"%s",command);
+
+	if (!strcmp(command,"CreatAccount"))
+	{
+		sscanf(CommandLine,"%s %lu %lf ",command,&Args->AccountNumber,&Args->Balance);
+		g_WaitCode = INFINITE;
+		Args->WaitCode = INFINITE;
+		functionPtr = &CreatAccount;
+		ThreadCreation(functionPtr,Args);
+		return;
+	}
+	else if (!strcmp(command,"CloseAccount"))
+	{
+		sscanf(CommandLine,"%s %lu ",command,&Args->AccountNumber);
+		g_WaitCode = INFINITE;
+		Args->WaitCode = INFINITE;
+		functionPtr = &CloseAccount;
+		ThreadCreation(functionPtr,Args);
+		return;
+	}
+	else if (!strcmp(command,"PrintBalances"))
+	{
+		g_WaitCode		=	INFINITE;
+		Args->WaitCode	=	INFINITE;
+		functionPtr = &PrintBalances;
+		ThreadCreation(functionPtr,Args);
+		free(Args);
+		return;
+	}
+	else if (!strcmp(command,"Deposit"))
+	{
+		sscanf(CommandLine,"%s %lu %lf ",command,&Args->AccountNumber,&Args->Amount);
+		g_WaitCode		= NO_WAIT;
+		Args->WaitCode	= NO_WAIT;
+		functionPtr = &Deposit;
+		ThreadCreation(functionPtr,Args);
+		return;
+	}	
+	else if (!strcmp(command,"Withdrawal"))
+	{
+		sscanf(CommandLine,"%s %lu %lf ",command,&Args->AccountNumber,&Args->Amount);
+		g_WaitCode		= NO_WAIT;
+		Args->WaitCode	= NO_WAIT;
+		functionPtr = &Withdrawal;
+		ThreadCreation(functionPtr,Args);
+		return;
+	}
+	else
+		printf("Illegal Command %s\n",command);
+
+	return;
+
+}
+
+void ThreadCreation(void (*functionPtr)(ARGUMENTS_S*),ARGUMENTS_S* Args)
+{
+	DWORD ThreadID;
+	HANDLE tmpHandle;
+
+	if(g_HandlesArray!= NULL)
+		WaitForMultipleObjects(g_HandelArraySize,g_HandlesArray,TRUE,Args->WaitCode);
+	tmpHandle = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)functionPtr,Args,0,&ThreadID);
+	CHECK_THREAD_CREATION(tmpHandle);
+
+	AddHandleToArray(tmpHandle);
+}
+
+void ReadInputFileRoutine()
+{
+	errno_t err;
+	FILE *Instream = NULL;
+	char *CommandLine = NULL;
+
+	err = fopen_s(&Instream,"Test_file.txt","r+");
+	CHECK_FILE_CREATION(err);
+	while(!feof(Instream))
+	{
+		CommandLine = ReadLineFromFile(Instream);
+		RunCommand(CommandLine);
+
+		printf("waiting for %d items \n",g_HandelArraySize);
+		WaitForMultipleObjects(g_HandelArraySize,g_HandlesArray,TRUE,g_WaitCode);
+	}
+	printf("EOF reached \n");
+	WaitForMultipleObjects(g_HandelArraySize,g_HandlesArray,TRUE,INFINITE);
+}
+
+void AddHandleToArray(HANDLE handle)
+{
+	DWORD ReleaseRes;
+	DWORD WaitRes = WaitForSingleObject( g_Locker, INFINITE );
+	
+	if(g_HandlesArray == NULL)
+	{
+		g_HandelArraySize ++;
+		g_HandlesArray = (HANDLE*) calloc (g_HandelArraySize,sizeof(HANDLE));
+	}
+	else
+	{
+		g_HandelArraySize ++;
+		g_HandlesArray = (HANDLE*)realloc(g_HandlesArray,g_HandelArraySize*sizeof(HANDLE));
+	}
+	CHECK_ALLOCATION(g_HandlesArray);
+	g_HandlesArray[g_HandelArraySize -1] = handle;
+
+	ReleaseRes = ReleaseMutex( g_Locker );
+}
+
+void CloseHandleArray()
+{
+	DWORD index;
+	for(index = 0; index < g_HandelArraySize; index++)
+	{
+		CloseHandle(g_HandlesArray[index]);
+	}
+}
+
+void main()
+{
+	g_Locker = CreateMutex(NULL,FALSE, "LockerM");  
+	ReadInputFileRoutine();
+	CloseHandleArray();
+}
+
+
+

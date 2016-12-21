@@ -1,0 +1,499 @@
+#ifndef BANK_MANAGMENT
+#define BANK_MANAGMENT
+
+
+#include "Common.h"
+#include "ListManagment.h"
+
+#define MAX_COMMAND_LENGTH			14
+
+typedef enum
+{
+	READ_INPUT,
+	SPARE1,
+	SPARE2,
+	SPARE3
+}THREAD_NAME;
+
+typedef struct arg
+{
+	double Amount;
+	double Balance;
+	unsigned long AccountNumber;
+}ARGUMENTS_S;
+
+
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+#ifndef COMMON_H
+#define COMMON_H
+
+#include <stdio.h>
+#include <Windows.h>
+
+
+#define ERROR_CODE		0
+#define THREAD_NUMBER	1
+
+#define CHECK_FILE_CREATION(arg) {if(0 != arg) \
+										{ printf("File creation failed with %d\n",GetLastError()); exit(0);}}
+
+#define CHECK_STRING_ALLOCATION(arg) { if(NULL==arg) \
+										{ printf("string allocation failed with %d\n ",GetLastError()); exit(0);}}
+
+#define PRINT_STRING(arg) printf("%s ",arg)
+
+
+#define CHECK_THREAD_CREATION(arg) { if(NULL==arg) \
+										{ printf("Thread creation failed with %d\n ",GetLastError()); exit(0);}}
+
+#define CHECK_MEMORY_ALLOCATION(arg) { if(NULL==arg) \
+										{ printf("Memmory allocation failed with %d\n ",GetLastError()); exit(0);}}
+
+#define CHECK_ALLOCATION(arg) { if(NULL==arg) \
+										{ printf("Object allocation failed with %d\n ",GetLastError()); exit(0);}}
+
+
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
+/* 
+Author= Ziv Belahsan 201567278 Yogev laks=200344729
+Project=Exercise 2
+Using -				 
+	
+Description -	The List implementation header file
+*/
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
+
+#ifndef LIST_MANAGMENT_H
+#define LIST_MANAGMENT_H
+
+#include "Common.h"
+
+typedef struct DatabaseCell
+{
+	unsigned long		AccountNumber;
+	double				InitialBalance;
+	double				CurrentBalance;
+	int					NumOfDeposits;
+	int					NumOfWithdrawals;
+	HANDLE				AccountSem;
+	struct DatabaseCell		*next;
+}DatabaseCell;
+
+void PrintList(void);
+void PushList(DatabaseCell* cell);
+int SearchList(unsigned long AccountNumber);
+void DeleteCell(unsigned long AccountNumber);
+DatabaseCell* GetCellFromList(unsigned long AccountNumber);
+DatabaseCell *CreateDatabaseCell(unsigned long AccountNumber, double InitialBalance);
+
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include "BankManagment.h"
+
+
+DatabaseCell* g_DatabaseHead;
+
+int CheckAccountNumber(char *CommandLine)
+{
+	char *token = NULL, *ch = NULL,*CommandLineCopy = NULL ;
+	char Bool = TRUE;
+	
+	if(!strcmp(CommandLine,"PrintBalances"))
+		return Bool;
+
+	CommandLineCopy = (char*)calloc(strlen(CommandLine)+1,sizeof(char));
+	CHECK_STRING_ALLOCATION(CommandLineCopy);
+	strcpy(CommandLineCopy,CommandLine);
+
+	token = strtok(CommandLineCopy, " ");
+    token = strtok(NULL, " ");
+
+	for(ch = token ; *ch!='\0'; ch++)
+	{
+		if((*ch < 48) || (*ch>57))
+		{
+			Bool = FALSE;
+			break;
+		}
+	}
+	free(CommandLineCopy);
+	return Bool;
+}
+
+char* ReadLineFromFile(FILE* File)
+{
+	char ch;
+	char *str = NULL;
+	int length = 1,index = 0;
+
+	ch = fgetc(File);
+	while((ch!='\n') && (ch!= EOF) && (ch!= '\r'))
+	{
+		str = (char*) realloc((char*)str,++length);
+		CHECK_STRING_ALLOCATION(str);
+		str[index++] = ch;
+		str[index] = '\0';
+		ch = fgetc(File);
+	}
+
+	return str;
+}
+
+void CreatAccount(ARGUMENTS_S Args)
+{
+	unsigned long AccountNumber = Args.AccountNumber;
+	double InitialBalance = Args.Balance;
+	if(SearchList(AccountNumber))
+		printf("!!! Account number %lu already exists. Can't create account. Skipping command. !!!\n",AccountNumber);
+	else
+	{
+		PushList(CreateDatabaseCell(AccountNumber,InitialBalance));
+	}
+}
+
+void CloseAccount(ARGUMENTS_S Args)
+{
+	unsigned long AccountNumber = Args.AccountNumber;
+	if(!SearchList(AccountNumber))
+		printf("!!! Account number %lu doesn't exist. Can't close account. Skipping command. !!!\n",AccountNumber);
+	else
+	{
+		DeleteCell(AccountNumber);
+		printf("Successfully closed bank account number %lu.\n",AccountNumber);
+	}
+}
+
+void PrintBalances()
+{
+	printf("Current balances in bank accounts are:\n");
+	printf("Bank Account #,Current Balance\n");
+	PrintList();
+}
+
+void Deposit(ARGUMENTS_S Args)
+{
+	unsigned long AccountNumber = Args.AccountNumber;
+	double Amount = Args.Amount;
+	DatabaseCell *tmp = NULL;
+	if(!SearchList(AccountNumber))
+		printf("!!! Unable to deposited %lf to account number %lu. Account doesn't exist. Skipping command. !!!\n",Amount,AccountNumber);
+	else
+	{
+		tmp = GetCellFromList(AccountNumber);
+		tmp->CurrentBalance += Amount;
+		tmp->NumOfDeposits ++;
+	}
+}
+
+void Withdrawal(ARGUMENTS_S Args)
+{
+	unsigned long AccountNumber = Args.AccountNumber;
+	double Amount = Args.Amount;
+	DatabaseCell *tmp = NULL;
+	if(!SearchList(AccountNumber))
+		printf("!!! Unable to withdrew %lf from account number %lu. Account doesn't exist. Skipping command. !!!\n",Amount,AccountNumber);
+	else
+	{
+		tmp = GetCellFromList(AccountNumber);
+		tmp->CurrentBalance -= Amount;
+		tmp->NumOfWithdrawals ++;
+		printf("Successfully withdrew %lf from account number %lu.\n",Amount,AccountNumber);
+	}
+}
+
+void RunCommand(char *CommandLine)
+{
+	char command[MAX_COMMAND_LENGTH]  = {0};
+	char *CheckAccountNumberString = NULL;
+	ARGUMENTS_S Args ={0.0 ,0.0, 0};
+
+	if(!CheckAccountNumber (CommandLine))
+	{
+		printf("Illegal Account Number\n");
+		return;
+	}
+
+	sscanf(CommandLine,"%s",command);
+
+	if (!strcmp(command,"CreatAccount"))
+	{
+		sscanf(CommandLine,"%s %lu %lf ",command,&Args.AccountNumber,&Args.Balance);
+		CreatAccount(Args);
+		return;
+	}
+	else if (!strcmp(command,"CloseAccount"))
+	{
+		sscanf(CommandLine,"%s %lu ",command,&Args.AccountNumber);
+		CloseAccount(Args);
+		return;
+	}
+	else if (!strcmp(command,"PrintBalances"))
+	{
+		PrintBalances();
+		return;
+	}
+	else if (!strcmp(command,"Deposit"))
+	{
+		sscanf(CommandLine,"%s %lu %lf ",command,&Args.AccountNumber,&Args.Amount);
+		Deposit(Args);
+		return;
+	}	
+	else if (!strcmp(command,"Withdrawal"))
+	{
+		sscanf(CommandLine,"%s %lu %lf ",command,&Args.AccountNumber,&Args.Amount);
+		Withdrawal(Args);
+		return;
+	}
+	else
+		printf("Illegal Command %s\n",command);
+
+	return;
+
+}
+
+void ReadInputFileRoutine()
+{
+	errno_t err;
+	FILE *Instream = NULL;
+	char *CommandLine = NULL;
+
+	err = fopen_s(&Instream,"Test_file.txt","r+");
+	CHECK_FILE_CREATION(err);
+
+	while(!feof(Instream))
+	{
+		CommandLine = ReadLineFromFile(Instream);
+		RunCommand(CommandLine);
+	}
+}
+
+void main()
+{
+	HANDLE Thread_handle_array[THREAD_NUMBER];
+	DWORD ThreadID[THREAD_NUMBER];
+
+	Thread_handle_array[READ_INPUT] = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ReadInputFileRoutine,NULL,0,&ThreadID[READ_INPUT]);
+	CHECK_THREAD_CREATION(Thread_handle_array[READ_INPUT]);
+	WaitForMultipleObjects(1,Thread_handle_array,TRUE,INFINITE);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include "ListManagment.h"
+
+extern DatabaseCell* g_DatabaseHead;
+
+char* u_long2String(unsigned long* num)
+{
+	int len = 2;
+	unsigned long tmp = *num;
+	char* str = NULL;
+	
+	while(tmp > 0)
+	{
+		tmp/=10;
+		len++;
+	}
+
+	str = (char*)calloc(len +1,sizeof(char));
+	CHECK_STRING_ALLOCATION(str);
+	sprintf(str,"%lu",*num);
+	return str;
+}
+
+void PushList(DatabaseCell* cell)
+{
+	DatabaseCell *current = g_DatabaseHead, *previous=NULL;
+	cell ->next = NULL;
+	if(g_DatabaseHead == NULL)// handels empty list
+	{
+		g_DatabaseHead = cell;
+		return;
+	}
+	if(current->AccountNumber >= cell->AccountNumber)//handle situation that the first node at the list allready has lower process_id then the newely entered cell
+	{
+		cell->next = current;
+		g_DatabaseHead = cell;
+		return;
+	}
+	previous = current;
+	current = current->next;
+
+	while(current != NULL && current->AccountNumber <= cell->AccountNumber)
+	{
+		previous = current;
+		current = current->next;
+	}
+
+	cell ->next = current;
+	previous->next = cell;
+	return;
+}
+
+DatabaseCell *CreateDatabaseCell(unsigned long		AccountNumber,
+								double				InitialBalance)
+{
+	DatabaseCell * node = NULL;
+	node = (DatabaseCell*)malloc(sizeof(DatabaseCell));
+	CHECK_MEMORY_ALLOCATION(node);
+
+	node->AccountNumber		= AccountNumber;
+	node->InitialBalance	= InitialBalance;
+	node->CurrentBalance	= InitialBalance;
+	node->NumOfDeposits		= 0;
+	node->NumOfDeposits		= 0;
+	node->AccountSem =     CreateMutex(NULL,              // default security attributes
+									   FALSE,             // initially not owned
+										u_long2String(&node->AccountNumber));
+	CHECK_ALLOCATION(node->AccountSem);
+	node ->next = NULL;
+	return node;
+}
+
+void DeleteCell(unsigned long AccountNumber)
+{
+	DatabaseCell *previus = NULL;
+	DatabaseCell *current = g_DatabaseHead;
+	DatabaseCell *tmp = NULL;
+
+	if(current->AccountNumber == AccountNumber)
+	{
+		tmp = current;
+		g_DatabaseHead = current->next;
+		tmp->next = NULL;
+		return;
+	}
+	while(current)
+	{
+		if(current->AccountNumber == AccountNumber)
+		{
+			previus->next = current->next;
+			current->next =NULL;
+			return;
+		}
+		previus = current;
+		current = current->next;
+	}
+}
+
+int SearchList(unsigned long AccountNumber)
+{
+	DatabaseCell *tmp = NULL;
+	for(tmp = g_DatabaseHead; tmp != NULL ; tmp = tmp->next)
+	{
+		if(tmp->AccountNumber == AccountNumber)
+			return 1;
+	}
+	return 0;
+}
+
+void PrintList(void)
+{
+	DatabaseCell *tmp = g_DatabaseHead;
+	if(g_DatabaseHead == NULL)
+		return;
+	for(tmp = g_DatabaseHead; tmp != NULL ; tmp = tmp->next)
+	{
+		printf("%lu with %.2lf\n",tmp->AccountNumber,tmp->CurrentBalance);
+	}
+}
+
+void FreeDatabase(void)
+{
+	DatabaseCell *tmp = NULL;
+
+	while (g_DatabaseHead)
+	{
+		tmp = g_DatabaseHead;
+		g_DatabaseHead = g_DatabaseHead->next;
+		CloseHandle(tmp->AccountSem);
+		free(tmp);
+	}
+}
+
+DatabaseCell* GetCellFromList(unsigned long AccountNumber)
+{
+	DatabaseCell *tmp = NULL;
+	for(tmp = g_DatabaseHead; tmp != NULL ; tmp = tmp->next)
+	{
+		if(tmp->AccountNumber == AccountNumber)
+			return tmp;
+	}
+	return NULL;
+}
+//void main()
+//{
+//	DatabaseCell *A= NULL,*B= NULL,*C= NULL,*D = NULL;
+//	A = CreateDatabaseCell(1235467,70);
+//	B = CreateDatabaseCell(1536853,200);
+//	C = CreateDatabaseCell(53995630,1220.2);
+//	D = CreateDatabaseCell(8756921475,365.365);
+//
+//	PushList(D);
+//	PushList(A);
+//	PushList(B);
+//	PushList(C);
+//	PrintBalance();
+//
+//	DeleteCell(1235467);
+//	DeleteCell(53995630);
+//	printf("After delete %d\n",SearchList(8756921475));
+//	PrintBalance();
+//	FreeDatabase();
+//}
