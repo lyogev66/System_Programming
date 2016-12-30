@@ -1,26 +1,24 @@
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
+/* 
+Author= Ziv Belahsan 201567278 Yogev laks=200344729
+Project=Exercise 3
+Using -			ListManagment.h	 
+	
+Description -	The List implementation
+*/
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 #include "ListManagment.h"
 
-extern DatabaseCell* g_DatabaseHead;
-extern FILE* g_RuntimeLogFile;
+extern DatabaseCell* g_DatabaseHead; //imports g_DatabaseHead, the head of the list
+extern FILE* g_RuntimeLogFile;//imports an handle to the runtime log file
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
+function name :		PushList
+Input arguments:	DatabaseCell* cell - a pointer to the cell to be inserted
 
-//char* u_long2String(unsigned long* num)
-//{
-//	int len = 2;
-//	unsigned long tmp = *num;
-//	char* str = NULL;
-//
-//	while(tmp > 0)
-//	{
-//		tmp/=10;
-//		len++;
-//	}
-//
-//	str = (char*)calloc(len +1,sizeof(char));
-//	CHECK_STRING_ALLOCATION(str);
-//	sprintf(str,"%lu",*num);
-//	return str;
-//}
+return:				None
 
+Description-		inserts a cell struct into the global list in a sorted method
+oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 void PushList(DatabaseCell* cell)
 {
 	DatabaseCell *current = g_DatabaseHead, *previous=NULL;
@@ -49,7 +47,15 @@ void PushList(DatabaseCell* cell)
 	previous->next = cell;
 	return;
 }
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
+function name :		CreateDatabaseCell
+Input arguments:	unsigned long	AccountNumber- the account number of the new cell
+					double	InitialBalance- the initial balance of the new cell
 
+return:				DatabaseCell* cell	-a pointer to the new cell
+
+Description-		creates a new node for the list
+oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 DatabaseCell *CreateDatabaseCell(unsigned long		AccountNumber,
 	double				InitialBalance)
 {
@@ -71,7 +77,14 @@ DatabaseCell *CreateDatabaseCell(unsigned long		AccountNumber,
 	node ->next = NULL;
 	return node;
 }
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
+function name :		DeleteCell
+Input arguments:	unsigned long	AccountNumber- the account number to be deleted
 
+return:				None
+
+Description-		deletes an account from the global list
+oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 void DeleteCell(unsigned long AccountNumber)
 {
 	DatabaseCell *previus = NULL;
@@ -99,18 +112,32 @@ void DeleteCell(unsigned long AccountNumber)
 		current = current->next;
 	}
 }
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
+function name :		IsInList
+Input arguments:	unsigned long	AccountNumber- the account number to be searched
 
+return:				int				TRUE or FALSE according the the account number
+
+Description-		search for an account number in the global list and returns TRUE if found else returns FALSE 
+oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 int IsInList(unsigned long AccountNumber)
 {
 	DatabaseCell *tmp = NULL;
 	for(tmp = g_DatabaseHead; tmp != NULL ; tmp = tmp->next)
 	{
 		if(tmp->AccountNumber == AccountNumber)
-			return 1;
+			return TRUE;
 	}
-	return 0;
+	return FALSE;
 }
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
+function name :		PrintList
+Input arguments:	None
 
+return:				None 
+
+Description-		prints the global list into the output runtime logfile
+oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 void PrintList(void)
 {
 	DatabaseCell *tmp = g_DatabaseHead;
@@ -121,7 +148,14 @@ void PrintList(void)
 		fprintf(g_RuntimeLogFile,"%lu,%.2lf\n",tmp->AccountNumber,tmp->CurrentBalance);
 	}
 }
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
+function name :		FreeDatabase
+Input arguments:	None
 
+return:				None 
+
+Description-		frees all the elements in the global list
+oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 void FreeDatabase(void)
 {
 	DatabaseCell *tmp = NULL;
@@ -134,7 +168,14 @@ void FreeDatabase(void)
 		free(tmp);
 	}
 }
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
+function name :		GetCellFromList
+Input arguments:	unsigned long AccountNumber -an account number to be returned
 
+return:				DatabaseCell* a pointer to the specific cell
+
+Description-		returns a pointer to a cell from the global list accrding to it's accoutn number
+oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 DatabaseCell* GetCellFromList(unsigned long AccountNumber)
 {
 	DatabaseCell *tmp = NULL;

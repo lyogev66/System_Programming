@@ -1,8 +1,8 @@
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 /* 
 Author= Ziv Belahsan 201567278 Yogev laks=200344729
-Project=Exercise 2
-Using -				 
+Project=Exercise 3
+Using -			Common.h		 
 	
 Description -	The List implementation header file
 */
@@ -13,6 +13,7 @@ Description -	The List implementation header file
 
 #include "Common.h"
 
+//the data base cell object
 typedef struct DatabaseCell
 {
 	unsigned long		AccountNumber;
