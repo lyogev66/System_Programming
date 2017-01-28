@@ -24,6 +24,9 @@
     <ClCompile Include="client.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="gamePlay.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client.h">
@@ -33,6 +36,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gamePlay.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

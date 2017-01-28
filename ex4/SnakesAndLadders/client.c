@@ -107,7 +107,7 @@ void sendAndLog(ARGUMENTS_S *Args,char* stringToSend)
 	if(Args->client.winner)
 	{
 		printDebug("sending winner msg\n");
-		send(Args->client.clientSocket,sendbuffer,strlen(sendbuffer)+5,0);
+		send(Args->client.clientSocket,"winner\n",strlen("winner\n")+1,0);
 	}
 	else
 		send(Args->client.clientSocket,sendbuffer,strlen(sendbuffer)+1,0);
@@ -132,6 +132,38 @@ void closeMySocket(SOCKET socket)
 	}
 }
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
+function name :		cleanUp
+Input arguments:	ARGUMENTS_S* Args								- the arguments struct
+					HANDLE threadsRoutinesArray[NUMBER_OF_THREADS]	- the theards handle array
+
+return:				None
+
+Description-		this function closes all the open handles for the threads the mutex,
+					the events and the file and close the socket connetion
+oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
+void cleanUp(HANDLE threadsRoutinesArray[NUMBER_OF_THREADS], ARGUMENTS_S* Args)
+{
+    printDebug("DEBUG: terminating both of the threads\n");
+	if ( threadsRoutinesArray != NULL )
+	{
+		if(!TerminateThread(threadsRoutinesArray[SCANF_INDEX],EXIT_ERROR))
+			printf("can't terminate UIThread \n");
+		if(!TerminateThread(threadsRoutinesArray[RECV_INDEX],EXIT_ERROR))
+			printf("can't terminate ClientCommunicationThread \n");
+		printDebug("DEBUG: closing the handles\n");
+		CloseHandle(threadsRoutinesArray[SCANF_INDEX]);
+		CloseHandle(threadsRoutinesArray[RECV_INDEX]);
+	}
+
+	CloseHandle(Args->threadEvents[SCANF_INDEX]);
+	CloseHandle(Args->threadEvents[RECV_INDEX]);
+	CloseHandle(Args->engineWorkingEvent);
+	CloseHandle(Args->msgInProgress);
+	CloseHandle(Args->writingLock);
+	fclose(Args->logFile);
+	closeMySocket(Args->client.clientSocket);
+}
+/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
 function name :		parseFromUser
 Input arguments:	ARGUMENTS_S* Args - the arguments struct
 
@@ -154,7 +186,6 @@ void parseFromUser(ARGUMENTS_S* Args)
 	}
 	Args->sendBuffer[bufferIndex] = '\0';  
 }
-
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
 function name :		getConnectionResponce
 Input arguments:	ARGUMENTS_S* Args - the arguments struct
@@ -185,11 +216,13 @@ void getConnectionResponce(ARGUMENTS_S* Args)
 		}
 		else{											//else connection is refused
 			printToLogAndScreenLocked(Args,"Connection to server refused. Exiting.\n");
+			cleanUp(NULL,Args);
 			exit(EXIT_ERROR);
 		}
 	}
 	else{
-		printf("recv failed with error: %d\n", WSAGetLastError());
+		printToLogAndScreenLocked(Args,"recv failed with error: %d\n", WSAGetLastError());
+		cleanUp(NULL,Args);
 		exit(EXIT_ERROR);
 	}
 }
@@ -214,7 +247,7 @@ void connectToServer(ARGUMENTS_S *Args,int portNumber)
 
 	if ((retval = WSAStartup(0x202, &wsaData)) != 0)					
 	{
-		printf("Client: WSAStartup() failed with error %d\n", retval);
+		printToLogAndScreenLocked(Args,"Client: WSAStartup() failed with error %d\n", retval);
 		WSACleanup();
 		exit(EXIT_ERROR);
 	}
@@ -235,7 +268,6 @@ void connectToServer(ARGUMENTS_S *Args,int portNumber)
 		printToLogAndScreenLocked(Args,"Connected to server on port %d\n",portNumber);
 		sprintf(buffer,"username=%s",Args->client.userName);
 		sendAndLog(Args,buffer);
-
 	}
 	else
 	{	//connect fail
@@ -517,8 +549,8 @@ oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 void parseRecv(ARGUMENTS_S* Args)
 {
 	char command[MAX_BUFFER_SIZE] = {0},notRelevent[MAX_BUFFER_SIZE] = {0};
-	char numberStr[3] = {0},pawnType[2] = {0};
-	int stepSize;
+	char numberStr[MAX_BUFFER_SIZE] = {0},pawnType[MAX_BUFFER_SIZE] = {0}; //MAX_BUFFER_SIZE because to handle a winner message as well
+	int stepSize,gameResult;
 
 	sscanf(Args->recvBuffer,"%s",command);
 	
@@ -528,41 +560,16 @@ void parseRecv(ARGUMENTS_S* Args)
 		sscanf(Args->recvBuffer,"%s %s %s %s %s %s",command,pawnType,notRelevent,notRelevent,notRelevent,numberStr);
 		numberStr[2]='\0';
 		stepSize = atoi(numberStr);
-		playGame(pawnType[0],stepSize,&Args->board,Args->writingLock);		//start the game
-
+		gameResult = playGame(pawnType[0],stepSize,&Args->board,Args->writingLock);		//start the game
+		if (gameResult == RETURN_OTHER_WINNER )
+			Args->closeAllThreads = TRUE;
 		printDebug("DEBUG: client:type %s draw a %d \n",pawnType,stepSize);
 		printDebug("DEBUG: current pawn is %c my pawn is %c\n",pawnType[0],Args->client.pawnType);
 	}
-}
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
-function name :		cleanUp
-Input arguments:	ARGUMENTS_S* Args								- the arguments struct
-					HANDLE threadsRoutinesArray[NUMBER_OF_THREADS]	- the theards handle array
-
-return:				None
-
-Description-		this function closes all the open handles for the threads the mutex,
-					the events and the file and close the socket connetion
-oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
-void cleanUp(HANDLE threadsRoutinesArray[NUMBER_OF_THREADS], ARGUMENTS_S* Args)
-{
-    printDebug("DEBUG: terminating both of the threads\n");
-
-    if(!TerminateThread(threadsRoutinesArray[SCANF_INDEX],EXIT_ERROR))
-		printf("can't terminate UIThread \n");
-    if(!TerminateThread(threadsRoutinesArray[RECV_INDEX],EXIT_ERROR))
-		printf("can't terminate ClientCommunicationThread \n");
-
-	printDebug("DEBUG: closing the handles\n");
-	CloseHandle(threadsRoutinesArray[SCANF_INDEX]);
-	CloseHandle(threadsRoutinesArray[RECV_INDEX]);
-	CloseHandle(Args->threadEvents[SCANF_INDEX]);
-	CloseHandle(Args->threadEvents[RECV_INDEX]);
-	CloseHandle(Args->engineWorkingEvent);
-	CloseHandle(Args->msgInProgress);
-	CloseHandle(Args->writingLock);
-	fclose(Args->logFile);
-	closeMySocket(Args->client.clientSocket);
+	else if (  !strcmp(command,"Game")) // gane Finished
+	{
+		Args->closeAllThreads = TRUE;
+	}
 }
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
 function name :		drewAndPlay
@@ -586,6 +593,7 @@ void drewAndPlay(ARGUMENTS_S *Args)
 		if (gameResult == RETURN_WINNER)
 		{
 			printDebug("DEBUG: winner is found\n");
+			printToLogAndScreenLocked(Args,"You won the game. Congratulations\n");
 			Args->client.winner = TRUE;
 		}
 		else
@@ -631,13 +639,15 @@ int clientRoutine(char userName[PLAYER_NAME_SIZE], int portNumber,char* logFileN
 	initBoard(&Args.board);
 	//creating locks
 	initiateLocks(&Args);
+	//creating events and initiating them
+	initiateClientEvents(threadEvents,&Args);
+
 	Args.logFile = logFile;
 	memcpy(Args.client.userName,userName,strlen(userName)+1);
 
 	connectToServer(&Args,portNumber);         //connecting to server and sending the required message
 
-	//creating events and initiating them
-	initiateClientEvents(threadEvents,&Args);
+
 	//creating threads and initiating them
 	initiateClientThreads(threadsRoutinesArray,threadRoutines,&Args);
 
@@ -680,7 +690,7 @@ int clientRoutine(char userName[PLAYER_NAME_SIZE], int portNumber,char* logFileN
 		default:
 			printf("why am I here?\n");
 		}
-        if ( Args.client.winner )
+        if ( ( Args.client.winner ) || ( Args.closeAllThreads) )
         {
 			break;
         }

@@ -15,10 +15,12 @@ Description -	The gamePlay header file contains all the routines that controls t
 #include <math.h>          //for power
 #include <stdarg.h>        //implement printf + fprintf
 
-#define NUMBER_OF_PAWNS		4
-#define GAME_ARRAY_SIZE		101
-#define DISPLAY_SIZE		7
-#define RETURN_WINNER		100
+#define NUMBER_OF_PAWNS			4
+#define GAME_ARRAY_SIZE			101
+#define DISPLAY_SIZE			7
+#define RETURN_WINNER			100
+#define RETURN_OTHER_WINNER		101
+
 
 
 typedef enum cellType{

@@ -187,7 +187,7 @@ void setBoard(matrixCell gameBoard[GAME_ARRAY_SIZE])
 	//locations for starts and ends
 	int ladderStartArr[NUMBER_OF_LADDERS] = {4 , 9 , 20, 28, 40, 51, 63, 71};	
 	int ladderEndArr[NUMBER_OF_LADDERS] =	{14, 31, 38, 84, 59, 67, 81, 91};
-	int snakeStartArr[NUMBER_OF_SNAKES] =	{17, 54, 62, 64, 87, 93, 96, 99};
+	int snakeStartArr[NUMBER_OF_SNAKES] =	{17, 54, 62, 64, 87, 93, 95, 99};
 	int snakeEndArr[NUMBER_OF_SNAKES] =		{7 , 34, 19, 60, 24, 73, 75, 78};
 	int i;
 
@@ -344,8 +344,7 @@ int findPawnIndex(char pawnType)
 	}else if( pawnType == '*' ){
 		return 3;
 	}else {
-		printf("Unknown pawn type\n");
-		exit(EXIT_ERROR);
+		return -1; //end game
 	}
 }
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO
@@ -354,7 +353,6 @@ Input arguments:	char pawnType		- the pawn character
 					int stepSize		- the size of the step to be done by the above pawn
 					boardStruct *borad	- the gameboard struct
 					HANDLE writingLock	- a handle to a writing protection mutex
-
 
 return:				int - a value indicates that the player hit the 100 cell
 
@@ -366,6 +364,8 @@ int playGame(char pawnType,int stepSize,boardStruct *borad,HANDLE writingLock)
 	int pawnIndex = 1;
 
 	pawnIndex = findPawnIndex(pawnType);
+	if (pawnIndex == -1)
+		return RETURN_OTHER_WINNER;
 
 	if (movePlayerPawn(pawnIndex,stepSize,borad) != RETURN_WINNER)
 	{
