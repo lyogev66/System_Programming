@@ -1,0 +1,492 @@
+Connected to server on port 6000
+Sent to server:username=isp4
+Received from server:New player joined the game:isp2 %
+Received from server:New player joined the game:isp1 *
+Received from server:isp3-@,  isp4-#,  isp2-%,  isp1-* 
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 2.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 1.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 3.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 4.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 2.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 6.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 4.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 6.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 4.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 4.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 2.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 3.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 2.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 4.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 3.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 4.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 6.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 5.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 4.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 5.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 6.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 3.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 3.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 2.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 2.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 2.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 4.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 3.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 2.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 5.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 2.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 6.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 5.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 4.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 5.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 2.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 3.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 3.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 1.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 5.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 6.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 6.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 4.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 4.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 3.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 1.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 5.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 1.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 2.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 3.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 2.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 4.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 5.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 2.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 5.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 1.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 5.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 6.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 1.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 1.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 5.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 6.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 4.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 1.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 4.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 3.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 2.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 3.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 5.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 6.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 6.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 2.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 2.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 4.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 2.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 6.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 4.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 3.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 5.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 1.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 4.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 1.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 3.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 4.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 6.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 4.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 4.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 4.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 6.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 2.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 1.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 1.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 2.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 4.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 1.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 2.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 2.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 6.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 3.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 4.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 1.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 3.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 1.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 2.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 2.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 2.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 5.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 6.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 4.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 1.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 6.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 3.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 5.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 2.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 5.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 4.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 2.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 4.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 2.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 3.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 6.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 3.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 1.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 6.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 6.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 5.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 4.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 4.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 2.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 5.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 4.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 1.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 1.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 5.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 3.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 2.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 4.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 2.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 3.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 1.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 3.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 4.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 6.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 1.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 3.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 4.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 6.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 3.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 2.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 2.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 4.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 1.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 1.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 5.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 3.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 3.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 3.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 5.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 1.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 6.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 3.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 2.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 4.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 3.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 4.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 3.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 1.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 6.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 6.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 6.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 6.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 2.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 4.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 6.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 1.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 1.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 6.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 5.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 5.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 5.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 4.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 5.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 6.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 4.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 3.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 5.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 4.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 3.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 2.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 6.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 4.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 5.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 2.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 2.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 6.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 6.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 1.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 5.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 6.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 4.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 1.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 4.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 1.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 4.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 5.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 3.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 5.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 5.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 2.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 3.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 2.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 2.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 4.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 1.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 2.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 1.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 3.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 4.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 6.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 6.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 1.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 5.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 1.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 4.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 1.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 3.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 4.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 5.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 2.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 3.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 5.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 2.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 1.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 2.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 2.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 2.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 2.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 1.
+Received from server:Your turn to play.
+Sent to server:Player # (isp4) drew a 5.
+Received from server:It is now isp1's turn to play
+Received from server:Player * (isp1) drew a 1.
+Received from server:It is now isp3's turn to play
+Received from server:Player @ (isp3) drew a 1.
+Received from server:It is now isp2's turn to play
+Received from server:Player % (isp2) drew a 2.
+Received from server:Your turn to play.
+You won the game. Congratulations
+Sent to server:Player # (isp4) drew a 5.
